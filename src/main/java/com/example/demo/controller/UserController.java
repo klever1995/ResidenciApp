@@ -11,14 +11,14 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    // Inyección automática del DAO
+    // Automatic DAO injection
     @Autowired
     private UserDAO userDAO;
 
-    // Ruta para obtener todos los usuarios
+    // Path to get all users
     @GetMapping("/users")
     public List<User> getUsers() {
-        // Retorna la lista de usuarios en formato JSON automáticamente
+        // Returns the list of users in JSON format automatically
         return userDAO.getAllUsers();
     }
 }

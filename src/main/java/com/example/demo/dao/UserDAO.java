@@ -12,23 +12,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component // Esto hace que UserDAO sea un bean de Spring
+@Component // This makes UserDAO a Spring bean
 public class UserDAO {
 
-    private final DataSource dataSource;  // Inyección de la fuente de datos
+    private final DataSource dataSource;  // Data source injection
 
-    // Inyección de dependencias para DataSource
+    // Dependency Injection for DataSource
     @Autowired
     public UserDAO(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    // Método para obtener todos los usuarios
+    // Method to get all users
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String query = "SELECT id, username, email, role, created_at, updated_at FROM Users";
 
-        // Usamos el DataSource inyectado para obtener la conexión
+        // We use the injected DataSource to obtain the connection
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {

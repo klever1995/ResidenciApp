@@ -23,12 +23,12 @@ public class PropertyDAO {
         this.dataSource = dataSource;
     }
 
-    // Método para obtener todos los usuarios
+    // Method to get all properties
     public List<PropertyDTO> getAllProperties() {
         List<PropertyDTO> properties = new ArrayList<>();
         String query = "SELECT id, title, description, price, address, is_available, owernerId, updated_at FROM Properties";
 
-        // Usamos el DataSource inyectado para obtener la conexión
+        // We use the injected DataSource to obtain the connection
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
