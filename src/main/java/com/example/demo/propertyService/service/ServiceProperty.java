@@ -15,9 +15,9 @@ public class ServiceProperty {
         DatabaseConnection connectionPropertyService = factoryPropertyService.createConnection();
 
         try (Connection conn = connectionPropertyService.getConnection()) {
-            System.out.println("Conexión exitosa a la base de datos PropertyService");
+            System.out.println("Successful connection to PropertyService database");
         } catch (SQLException e) {
-            System.out.println("Error al conectar a la base de datos PropertyService: " + e.getMessage());
+            System.out.println("Error connecting to PropertyService database: " + e.getMessage());
         }
     }
 }
