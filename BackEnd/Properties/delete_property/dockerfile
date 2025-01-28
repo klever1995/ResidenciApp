@@ -1,0 +1,18 @@
+# Use a Node.js base image
+FROM node:18
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copiar los archivos de la aplicación
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copy the application files
+COPY . .
+
+# Expose the port on which the microservice runs
+EXPOSE 3004  
+
+# Command to start the application
+CMD ["node", "index.js"]
