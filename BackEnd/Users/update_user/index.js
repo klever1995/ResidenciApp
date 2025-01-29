@@ -1,9 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 2003;
+
+// Configuración de CORS
+app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
 
 // Middleware para parsear JSON
 app.use(express.json());

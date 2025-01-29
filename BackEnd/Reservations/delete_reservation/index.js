@@ -1,6 +1,7 @@
 const express = require ("express");
 const mysql = require ("mysql2");
 const dotenv = require ("dotenv");
+const cors = require('cors');
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,9 @@ db.connect(err => {
   }
   console.log("Conectado a MySQL - delete-reservation");
 });
+
+// Configuración de CORS
+app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
 
 // Eliminar una reservación por ID
 app.delete("/reservations/:id", (req, res) => {
