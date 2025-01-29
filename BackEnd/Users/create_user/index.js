@@ -2,17 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = process.env.PORT || 2001;
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-//Middleware para parsear JSON
+//Middleware for parsear JSON
 app.use(express.json());
 
-//Endpoint para crear una propiedad
+//Endpoint for create a property
 app.post('/users', async (req, res) => {
     const { username, email, password, role } = req.body;
 
@@ -21,6 +22,10 @@ app.post('/users', async (req, res) => {
     }
 
     try {
+        // Generate the password hash
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
         const [result] = await db.query(
             'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)', 
             [username, email, password, role]
@@ -32,7 +37,7 @@ app.post('/users', async (req, res) => {
     }
 });
 
-//Iniciar el servidor
+//Start Server
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en ${PORT}`);
 });

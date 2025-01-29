@@ -6,13 +6,13 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-//Middleware para parsear JSON
+//Middleware for parsear JSON
 app.use(express.json());
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-//Endpoint para crear una propiedad
+//Endpoint for create a property
 app.post('/properties', async (req, res) => {
     const { title, address, owner_id, price } = req.body;
 
@@ -32,7 +32,7 @@ app.post('/properties', async (req, res) => {
     }
 });
 
-//Iniciar el servidor
+//Start server
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en ${PORT}`);
 });

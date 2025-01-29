@@ -3,13 +3,13 @@ const router = express.Router();
 const cors = require('cors');
 const authController = require('../controllers/authController');
 
-// Configuración de CORS
-router.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+router.use(cors()); // This will allow requests from any source
 
-// Ruta para generar un token
+// Path to generate a token
 router.post('/login', authController.login);
 
-// Ruta para verificar un token
+// Path to verify a token
 router.post('/validate', authController.validate);
 
 module.exports = router;
