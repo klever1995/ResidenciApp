@@ -3,11 +3,11 @@ const authService = require('../services/authService');
 const login = (req, res) => {
   const { username, password } = req.body;
   
-  // Verificar el usuario y contraseña (esto se debe hacer consultando la base de datos)
-  // Este es un ejemplo básico, deberías validar el usuario correctamente
+  // Verify the username and password (this must be done by consulting the database)
+  // Example
   const userId = 5; // Supongamos que obtienes el ID del usuario
   
-  // Si las credenciales son correctas, generamos un token
+  // If the credentials are correct, we generate a token
   const token = authService.createToken(userId);
   
   res.json({ token });

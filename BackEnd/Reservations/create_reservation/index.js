@@ -22,8 +22,8 @@ db.connect((err) => {
     }
 });
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
 app.post("/reservations", (req, res) => {
     const { user_id, property_id, reservation_date, status } = req.body;

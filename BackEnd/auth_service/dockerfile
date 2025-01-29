@@ -1,16 +1,16 @@
-# Usar una imagen base de Node.js
+# Use a Node.js base image
 FROM node:16
 
-# Establecer el directorio de trabajo
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copiar los archivos del proyecto al contenedor
+# Copy the application files
 COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Exponer el puerto
+# Expose the port on which the microservice runs
 EXPOSE 5000
 
-# Comando para iniciar el servidor
+# Command to start the application
 CMD ["node", "app.js"]

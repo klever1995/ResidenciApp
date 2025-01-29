@@ -4,7 +4,7 @@ FROM node:18
 # Set the working directory in the container
 WORKDIR /app
 
-# Copiar los archivos de la aplicación
+# Copy the application files
 COPY package.json package-lock.json ./
 RUN npm install
 
