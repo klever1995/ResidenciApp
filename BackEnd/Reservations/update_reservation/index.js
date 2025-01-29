@@ -1,5 +1,6 @@
 const express = require ("express");
 const mysql = require ("mysql2");
+const cors = require('cors');
 const dotenv = require ("dotenv");
 
 dotenv.config();
@@ -21,6 +22,9 @@ db.connect(err => {
   }
   console.log("Conectado a MySQL - update-reservation");
 });
+
+// Configuración de CORS
+app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
 
 // Ruta para actualizar una reservación
 app.put("/reservations/:id", (req, res) => {

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const db = require('./db');
 
 const app = express();
@@ -7,6 +8,9 @@ const PORT = process.env.PORT || 3001;
 
 //Middleware para parsear JSON
 app.use(express.json());
+
+// Configuración de CORS
+app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
 
 //Endpoint para crear una propiedad
 app.post('/properties', async (req, res) => {
