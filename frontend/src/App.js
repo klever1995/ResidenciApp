@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import PropertyAdmin from './PropertyAdmin'; // Importa el componente PropertyAdmin
+import PropertyAdmin from './Login'; // Importa el componente PropertyAdmin
 
 function App() {
   return (
