@@ -6,18 +6,18 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Middleware para parsear JSON
+// Middleware for parsear JSON
 app.use(express.json());
 
-// Ruta para actualizar una propiedad por ID
+// Route to update a property by ID
 app.put('/properties/:id', async (req, res) => {
   const { id } = req.params;
   const { title, address, owner_id, price } = req.body;
 
-  // Validación: Al menos uno de los campos debe estar presente
+  // Validation: At least one of the fields must be present
   if (!title && !address && !owner_id && !price) {
     return res
       .status(400)
@@ -25,7 +25,7 @@ app.put('/properties/:id', async (req, res) => {
   }
 
   try {
-    // Construir consulta SQL dinámica
+    // Build dynamic SQL query
     const fields = [];
     const values = [];
 
@@ -46,12 +46,12 @@ app.put('/properties/:id', async (req, res) => {
       values.push(price);
     }
 
-    // Agregar ID al final de los valores
+    // Add ID to the end of the values
     values.push(id);
 
     const query = `UPDATE Properties SET ${fields.join(', ')} WHERE id = ?`;
 
-    // Ejecutar la consulta
+    // Execute the query
     const [result] = await db.query(query, values);
 
     if (result.affectedRows === 0) {
@@ -65,7 +65,7 @@ app.put('/properties/:id', async (req, res) => {
   }
 });
 
-// Iniciar el servidor
+// Start Server
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

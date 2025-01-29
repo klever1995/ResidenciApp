@@ -6,7 +6,7 @@ const dotenv = require ("dotenv");
 dotenv.config();
 const app = express();
 
-// Conexión MySQL
+// Connection MySQL
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -22,10 +22,10 @@ db.connect(err => {
   console.log("Conectado a MySQL exitosamente");
 });
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Obtener todas las reservaciones
+// Get all reservations
 app.get("/reservations", (req, res) => {
   db.query("SELECT * FROM Reservations", (err, results) => {
     if (err) {
@@ -36,7 +36,7 @@ app.get("/reservations", (req, res) => {
   });
 });
 
-// Obtener una reservación por ID
+// Get a reservation by ID
 app.get("/reservations/:id", (req, res) => {
   const { id } = req.params;
   db.query("SELECT * FROM Reservations WHERE id = ?", [id], (err, result) => {
@@ -49,7 +49,7 @@ app.get("/reservations/:id", (req, res) => {
   });
 });
 
-// Iniciar servidor
+// Start server
 const PORT = process.env.PORT || 4002;
 app.listen(PORT, () => {
   console.log(`Servicio corriendo en el puerto ${PORT}`);

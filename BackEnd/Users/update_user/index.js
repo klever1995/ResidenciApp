@@ -6,18 +6,18 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 2003;
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Middleware para parsear JSON
+// Middleware for parsear JSON
 app.use(express.json());
 
-// Ruta para actualizar un usuario por ID
+// Path to update a user by ID
 app.put('/users/:id', async (req, res) => {
   const { id } = req.params;
   const { username, email, password, role } = req.body;
 
-  // Validación: Al menos uno de los campos debe estar presente
+  // Validation: At least one of the fields must be present
   if (!username && !email && !password && !role) {
     return res
       .status(400)
@@ -25,7 +25,7 @@ app.put('/users/:id', async (req, res) => {
   }
 
   try {
-    // Construir consulta SQL dinámica
+    // Build dynamic SQL query
     const fields = [];
     const values = [];
 
@@ -46,12 +46,12 @@ app.put('/users/:id', async (req, res) => {
       values.push(role);
     }
 
-    // Agregar ID al final de los valores
+    // Add ID to the end of the values
     values.push(id);
 
     const query = `UPDATE Users SET ${fields.join(', ')} WHERE id = ?`;
 
-    // Ejecutar la consulta
+    // Execute the query
     const [result] = await db.query(query, values);
 
     if (result.affectedRows === 0) {
@@ -65,7 +65,7 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-// Iniciar el servidor
+// Start server
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

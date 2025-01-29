@@ -23,10 +23,10 @@ db.connect(err => {
   console.log("Conectado a MySQL - update-reservation");
 });
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Ruta para actualizar una reservación
+// Route to update a reservation
 app.put("/reservations/:id", (req, res) => {
   const { id } = req.params;
   const { reservation_date, status } = req.body;
@@ -46,7 +46,7 @@ app.put("/reservations/:id", (req, res) => {
   });
 });
 
-// Iniciar servidor
+// Start server
 const PORT = process.env.PORT || 4003;
 app.listen(PORT, () => {
   console.log(`Microservicio de actualización corriendo en el puerto ${PORT}`);
