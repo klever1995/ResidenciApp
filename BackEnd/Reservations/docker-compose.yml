@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: Reservations
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  create-service:
+    build: ./create-service
+    ports:
+      - "4001:4001"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: Reservations
+
+  read-service:
+    build: ./read-service
+    ports:
+      - "4002:4002"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: Reservations
+
+  update-service:
+    build: ./update-service
+    ports:
+      - "4003:4003"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: Reservations
+
+  delete-service:
+    build: ./delete-service
+    ports:
+      - "4004:4004"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: Reservations
+
+volumes:
+  mysql_data:
