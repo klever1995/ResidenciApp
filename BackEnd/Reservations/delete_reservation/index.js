@@ -22,10 +22,10 @@ db.connect(err => {
   console.log("Conectado a MySQL - delete-reservation");
 });
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Eliminar una reservación por ID
+// Delete a reservation by ID
 app.delete("/reservations/:id", (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM Reservations WHERE id = ?", [id], (err, result) => {
@@ -38,7 +38,7 @@ app.delete("/reservations/:id", (req, res) => {
   });
 });
 
-// Iniciar servidor
+// Start server
 const PORT = process.env.PORT || 4004;
 app.listen(PORT, () => {
   console.log(`Microservicio de eliminación corriendo en el puerto ${PORT}`);

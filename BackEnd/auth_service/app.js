@@ -6,10 +6,10 @@ const authRoutes = require('./routes/authRoutes');
 // Middleware para parsear JSON
 app.use(express.json());
 
-// Rutas
+// Routes
 app.use('/api/auth', authRoutes);
 
-// Iniciar el servidor
+// Start server
 app.listen(5000, () => {
   console.log('Auth service running on port 5000');
 });

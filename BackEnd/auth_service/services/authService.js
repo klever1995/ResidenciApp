@@ -5,10 +5,10 @@ const db = require('../config/db');
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const generateToken = (userId) => {
-    return jwt.sign({ userId }, SECRET_KEY, { expiresIn: '1h' }); //Token expira en 1 hora
+    return jwt.sign({ userId }, SECRET_KEY, { expiresIn: '1h' }); //Token expires in 1 hour
 };
 
-//Para verificar el token
+//To verify the token
 const verifyToken = (token) => {
     try{
         return jwt.verify(token, SECRET_KEY);
@@ -17,7 +17,7 @@ const verifyToken = (token) => {
     }
 };
 
-//Para crear un nuevo token
+//To create a new token
 const createToken = (userId) => {
     const token = generateToken(userId);
 
@@ -30,7 +30,7 @@ const createToken = (userId) => {
     return token;
 };
 
-//Para verificar si el token es válido
+//To check if the token is valid
 const validateToken = (token) => {
     const decoded = verifyToken(token);
     if(decoded){
@@ -38,13 +38,13 @@ const validateToken = (token) => {
         db.query(query, [ token ], (err, results) => {
             if(err) throw err;
             if(results.length > 0){
-                return true; //Token válido
+                return true; //Valid token
             } else{
-                return false; //Token inválido
+                return false; //Invalid token
             }
         });
     } else{
-        return false; //Token inválido
+        return false; //Invalid token
     }	
 };
 

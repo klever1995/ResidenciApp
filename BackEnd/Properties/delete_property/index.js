@@ -6,10 +6,10 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3004;
 
-// Configuración de CORS
-app.use(cors()); // Esto permitirá solicitudes desde cualquier origen
+// Configuration of CORS
+app.use(cors()); // This will allow requests from any source
 
-// Ruta para eliminar una propiedad por ID
+// Path to delete a property by ID
 app.delete('/properties/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -27,7 +27,7 @@ app.delete('/properties/:id', async (req, res) => {
   }
 });
 
-// Iniciar el servidor
+// Start Server
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
