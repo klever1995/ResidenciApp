@@ -17,7 +17,7 @@ const Login = () => {
       });
       const { token } = response.data;
       localStorage.setItem("authToken", token);
-      setToken(token);  // Guardar el token en el estado
+      setToken("Autenticación exitosa",token);  // Guardar el token en el estado
       setError(""); // Limpiar error si hay éxito
     } catch (err) {
       setError("Credenciales incorrectas.");
