@@ -27,16 +27,16 @@ db.connect(err => {
 app.use(cors()); // This will allow requests from any source
 
 // Route to update a reservation
-app.put("/reservations/:id", (req, res) => {
+app.put("/upreservations/:id", (req, res) => {
   const { id } = req.params;
-  const { reservation_date, status } = req.body;
+  const { status } = req.body;
 
-  if (!reservation_date && !status) {
+  if (!status) {
     return res.status(400).json({ error: "Debe proporcionar al menos un campo a actualizar" });
   }
 
-  const query = "UPDATE Reservations SET reservation_date = ?, status = ? WHERE id = ?";
-  db.query(query, [reservation_date, status, id], (err, result) => {
+  const query = "UPDATE Reservations SET status = ? WHERE id = ?";
+  db.query(query, [ status, id], (err, result) => {
     if (err) {
       console.error("Error al actualizar reservación:", err);
       return res.status(500).json({ error: "Error en el servidor" });

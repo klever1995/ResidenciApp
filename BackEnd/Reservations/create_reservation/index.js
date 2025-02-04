@@ -25,15 +25,15 @@ db.connect((err) => {
 // Configuration of CORS
 app.use(cors()); // This will allow requests from any source
 
-app.post("/reservations", (req, res) => {
-    const { user_id, property_id, reservation_date, status } = req.body;
+app.post("/creservations", (req, res) => {
+    const { student_id, property_id, reservation_date, status } = req.body;
 
-    if(!user_id || !property_id || !reservation_date || !status) {
+    if(!student_id || !property_id || !reservation_date || !status) {
         res.status(400).send("Please provide all required fields");
     }
     
-    const query = `INSERT INTO reservations (user_id, property_id, reservation_date, status) VALUES (?, ?, ?, ?)`;
-    db.query(query, [user_id, property_id, reservation_date, status || 'pending'], (err, result) => {
+    const query = `INSERT INTO reservations (student_id, property_id, reservation_date, status) VALUES (?, ?, ?, ?)`;
+    db.query(query, [student_id, property_id, reservation_date, status || 'pending'], (err, result) => {
         if (err) {
             console.error("Error create reservation: " + err.stack);
             return res.status(500).send("Error en el servidor");

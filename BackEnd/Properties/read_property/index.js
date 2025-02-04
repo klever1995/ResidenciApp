@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3002;
 app.use(cors()); // This will allow requests from any source
 
 // Path to get all properties
-app.get('/properties', async (req, res) => {
+app.get('/rproperties', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM Properties');
     res.status(200).json(rows);
@@ -21,7 +21,7 @@ app.get('/properties', async (req, res) => {
 });
 
 // Route to get a property by ID
-app.get('/properties/:id', async (req, res) => {
+app.get('/rproperties/:id', async (req, res) => {
   const { id } = req.params;
 
   try {

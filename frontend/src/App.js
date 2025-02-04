@@ -1,17 +1,32 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
-import PropertyAdmin from './Login'; // Importa el componente PropertyAdmin
+import LoginSelector from './Identify';
+import LoginStudents from './LoginStudents';
+import StudentCreate from './StudentCreate';
+import LoginOwners from './LoginOwners';
+import OwnerCreate from './OwnerCreate';
+import PrincipalStudents from './PrincipalStudents';
+import PrincipalOwners from './PrincipalOwners';
 
-function App() {
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Bienvenido a la Administración de Propiedades</h1>
-        {/* Llamar al componente PropertyAdmin aquí */}
-        <PropertyAdmin />
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginSelector />} />
+        <Route path='/LoginStudents' element={<LoginStudents/>}/>
+        <Route path='/StudentCreate' element={<StudentCreate/>}/>
+        <Route path='/PrincipalStudents' element={<PrincipalStudents/>}/>
+        <Route path='/LoginOwners' element={<LoginOwners/>}/>
+        <Route path='/OwnerCreate' element={<OwnerCreate/>}/>
+        <Route path='/PrincipalOwners' element={<PrincipalOwners/>}/>
+
+
+
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
