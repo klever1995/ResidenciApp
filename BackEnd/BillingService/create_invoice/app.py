@@ -15,7 +15,7 @@ def create_invoice_endpoint():
     """
     Endpoint para crear una factura.
     Espera un JSON con:
-      - user_id (int)
+      - student_id (int)
       - reservation_id (int)
       - amount (decimal)
       - status (opcional, string: 'unpaid', 'paid' o 'cancelled')
@@ -24,7 +24,7 @@ def create_invoice_endpoint():
     invoice_data = request.get_json()
 
     # Validación simple: Verificar que existen los campos obligatorios
-    required_fields = ["user_id", "reservation_id", "amount"]
+    required_fields = ["student_id", "reservation_id", "amount"]
     missing_fields = [field for field in required_fields if field not in invoice_data]
 
     if missing_fields:

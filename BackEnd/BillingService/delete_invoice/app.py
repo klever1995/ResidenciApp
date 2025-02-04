@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Endpoint para eliminar una factura por ID
-@app.route("/<int:invoice_id>", methods=["DELETE"])
+@app.route("/invoice/<int:invoice_id>", methods=["DELETE"])
 def delete_invoice_endpoint(invoice_id):
     try:
         delete_invoice(invoice_id)  # Llama a la función para eliminar la factura

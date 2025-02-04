@@ -1,41 +1,36 @@
 from database import get_connection
 
-def read_invoice(invoice_data):
-    """
-    Inserta una nueva factura en la base de datos.
-    invoice_data: diccionario con las claves:
-      - user_id: ID del usuario (de UserService)
-      - reservation_id: ID de la reservación (de ReservationService)
-      - amount: Monto de la factura
-      - status: Estado de la factura (opcional, por defecto 'unpaid')
-    """
-    # Si no se provee el estado, usamos 'unpaid'
-    status = invoice_data.get("status", "unpaid")
 
-    # La consulta SQL para insertar la factura
-    query = """
-    INSERT INTO Invoices (user_id, reservation_id, amount, status)
-    VALUES (%s, %s, %s, %s)
+def get_all_invoices():
     """
-    values = (
-        invoice_data["user_id"],
-        invoice_data["reservation_id"],
-        invoice_data["amount"],
-        status
-    )
-
+    Obtiene todas las facturas almacenadas en la base de datos.
+    """
+    query = "SELECT id, student_id, reservation_id, amount, status FROM Invoices"
+    
     conn = get_connection()
-    cursor = conn.cursor()
-    try: 
-        cursor.execute(query, values)
-        conn.commit()
-        invoice_id = cursor.lastrowid
-    except Exception as e:
-        conn.rollback()
-        raise e
+    cursor = conn.cursor(dictionary=True)  # Devuelve los resultados como diccionarios
+    try:
+        cursor.execute(query)
+        invoices = cursor.fetchall()  # Obtener todas las filas
     finally:
         cursor.close()
         conn.close()
 
+    return invoices
 
-    return invoice_id
+def get_invoice_by_id(invoice_id):
+    """
+    Obtiene una factura específica por su ID.
+    """
+    query = "SELECT id, student_id, reservation_id, amount, status FROM Invoices WHERE id = %s"
+    
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(query, (invoice_id,))
+        invoice = cursor.fetchone()  # Obtener solo una fila
+    finally:
+        cursor.close()
+        conn.close()
+
+    return invoice

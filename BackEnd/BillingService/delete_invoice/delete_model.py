@@ -1,41 +1,32 @@
 from database import get_connection
 
-def delete_invoice(invoice_data):
+def delete_invoice(invoice_id):
     """
-    Inserta una nueva factura en la base de datos.
-    invoice_data: diccionario con las claves:
-      - user_id: ID del usuario (de UserService)
-      - reservation_id: ID de la reservación (de ReservationService)
-      - amount: Monto de la factura
-      - status: Estado de la factura (opcional, por defecto 'unpaid')
+    Elimina una factura de la base de datos por su ID.
+    invoice_id: ID de la factura a eliminar.
+    
+    Retorna:
+      - True si la eliminación fue exitosa.
+      - False si la factura no se encontró.
     """
-    # Si no se provee el estado, usamos 'unpaid'
-    status = invoice_data.get("status", "unpaid")
-
-    # La consulta SQL para insertar la factura
-    query = """
-    INSERT INTO Invoices (user_id, reservation_id, amount, status)
-    VALUES (%s, %s, %s, %s)
-    """
-    values = (
-        invoice_data["user_id"],
-        invoice_data["reservation_id"],
-        invoice_data["amount"],
-        status
-    )
+    query = "DELETE FROM Invoices WHERE id = %s"
 
     conn = get_connection()
     cursor = conn.cursor()
-    try: 
-        cursor.execute(query, values)
+    
+    try:
+        cursor.execute(query, (invoice_id,))
         conn.commit()
-        invoice_id = cursor.lastrowid
+
+        # Verificamos si se eliminó alguna fila
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+
     except Exception as e:
         conn.rollback()
-        raise e
+        raise e  # Relanza la excepción para que el controlador la maneje
     finally:
         cursor.close()
         conn.close()
-
-
-    return invoice_id

@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3004;
 app.use(cors()); // This will allow requests from any source
 
 // Path to delete a property by ID
-app.delete('/properties/:id', async (req, res) => {
+app.delete('/dproperties/:id', async (req, res) => {
   const { id } = req.params;
 
   try {

@@ -13,12 +13,12 @@ app.use(cors()); // This will allow requests from any source
 app.use(express.json());
 
 // Route to update a property by ID
-app.put('/properties/:id', async (req, res) => {
+app.put('/upproperties/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, address, owner_id, price } = req.body;
+  const { title, address, owner_id, price, description, is_available } = req.body;
 
   // Validation: At least one of the fields must be present
-  if (!title && !address && !owner_id && !price) {
+  if (!title && !address && !owner_id && !price && !description && !is_available) {
     return res
       .status(400)
       .json({ message: 'Debes enviar al menos un campo para actualizar.' });
@@ -45,6 +45,15 @@ app.put('/properties/:id', async (req, res) => {
       fields.push('price = ?');
       values.push(price);
     }
+    if (description) {
+      fields.push('description = ?');
+      values.push(description);
+    }
+    if (is_available) {
+      fields.push('is_available = ?');
+      values.push(is_available);
+    }
+
 
     // Add ID to the end of the values
     values.push(id);

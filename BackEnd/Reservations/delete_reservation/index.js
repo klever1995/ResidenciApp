@@ -26,7 +26,7 @@ db.connect(err => {
 app.use(cors()); // This will allow requests from any source
 
 // Delete a reservation by ID
-app.delete("/reservations/:id", (req, res) => {
+app.delete("/dreservations/:id", (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM Reservations WHERE id = ?", [id], (err, result) => {
     if (err) {

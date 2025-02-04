@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)  # Permitir solicitudes desde otros orígenes
 
 # Endpoint para obtener todas las facturas
-@app.route("/", methods=["GET"])
+@app.route("/invoice", methods=["GET"])
 def read_all_invoices():
     try:
         invoices = get_all_invoices()  # Función que consulta todas las facturas
@@ -20,7 +20,7 @@ def read_all_invoices():
         return jsonify({"error": str(e)}), 500
 
 # Endpoint para obtener una factura por ID
-@app.route("/<int:invoice_id>", methods=["GET"])
+@app.route("/invoice/<int:invoice_id>", methods=["GET"])
 def read_invoice(invoice_id):
     try:
         invoice = get_invoice_by_id(invoice_id)  # Consulta una factura específica

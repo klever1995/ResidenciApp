@@ -13,17 +13,17 @@ app.use(express.json());
 app.use(cors()); // This will allow requests from any source
 
 //Endpoint for create a property
-app.post('/properties', async (req, res) => {
-    const { title, address, owner_id, price } = req.body;
+app.post('/cproperties', async (req, res) => {
+    const { title, address, owner_id, price, description, is_available } = req.body;
 
-    if(!title || !address || !owner_id || !price) {
+    if(!title || !address || !owner_id || !price || !description || !is_available) {
         return res.status(400).json({ message: 'Faltan datos, estos datos son obligatorios' });
     }
 
     try {
         const [result] = await db.query(
-            'INSERT INTO properties (title, address, owner_id, price) VALUES (?, ?, ?, ?)', 
-            [title, address, owner_id, price]
+            'INSERT INTO properties (title, address, owner_id, price, description, is_available) VALUES (?, ?, ?, ?, ?, ?)', 
+            [title, address, owner_id, price, description, is_available]
         );
         res.status(201).json({ message: 'Propiedad creada con éxito', id: result.insertId});
     }catch(error){

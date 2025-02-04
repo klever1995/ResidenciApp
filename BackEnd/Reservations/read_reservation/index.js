@@ -26,7 +26,7 @@ db.connect(err => {
 app.use(cors()); // This will allow requests from any source
 
 // Get all reservations
-app.get("/reservations", (req, res) => {
+app.get("/readreservations", (req, res) => {
   db.query("SELECT * FROM Reservations", (err, results) => {
     if (err) {
       console.error("Error al obtener reservaciones:", err);
@@ -37,7 +37,7 @@ app.get("/reservations", (req, res) => {
 });
 
 // Get a reservation by ID
-app.get("/reservations/:id", (req, res) => {
+app.get("/readreservations/:id", (req, res) => {
   const { id } = req.params;
   db.query("SELECT * FROM Reservations WHERE id = ?", [id], (err, result) => {
     if (err) {
