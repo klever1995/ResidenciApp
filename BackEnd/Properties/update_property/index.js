@@ -1,31 +1,35 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Configuration of CORS
-app.use(cors()); // This will allow requests from any source
+// Configuración de CORS
+app.use(cors());
 
-// Middleware for parsear JSON
+// Middleware para parsear JSON
 app.use(express.json());
 
-// Route to update a property by ID
-app.put('/upproperties/:id', async (req, res) => {
+// Configuración de multer para almacenar imágenes en memoria
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Ruta para actualizar una propiedad por ID, incluyendo la imagen de forma opcional
+app.put('/upproperties/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const { title, address, owner_id, price, description, is_available } = req.body;
+  const image = req.file ? req.file.buffer : null; // Guardar imagen si se envía
 
-  // Validation: At least one of the fields must be present
-  if (!title && !address && !owner_id && !price && !description && !is_available) {
-    return res
-      .status(400)
-      .json({ message: 'Debes enviar al menos un campo para actualizar.' });
+  // Validación: al menos un campo debe enviarse para actualizar
+  if (!title && !address && !owner_id && !price && !description && !is_available && !image) {
+    return res.status(400).json({ message: 'Debes enviar al menos un campo para actualizar.' });
   }
 
   try {
-    // Build dynamic SQL query
+    // Construcción dinámica de la consulta SQL
     const fields = [];
     const values = [];
 
@@ -53,14 +57,17 @@ app.put('/upproperties/:id', async (req, res) => {
       fields.push('is_available = ?');
       values.push(is_available);
     }
+    if (image) {
+      fields.push('image = ?');
+      values.push(image);
+    }
 
-
-    // Add ID to the end of the values
+    // Agregar ID al final de los valores
     values.push(id);
 
     const query = `UPDATE Properties SET ${fields.join(', ')} WHERE id = ?`;
 
-    // Execute the query
+    // Ejecutar la consulta
     const [result] = await db.query(query, values);
 
     if (result.affectedRows === 0) {
@@ -74,7 +81,7 @@ app.put('/upproperties/:id', async (req, res) => {
   }
 });
 
-// Start Server
+// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
