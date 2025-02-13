@@ -71,8 +71,7 @@ jobs:
             echo "DB_USER=admin" >> .env
             echo "DB_PASSWORD=Narusenin123" >> .env
             echo "DB_NAME=PropertyService" >> .env  
-            echo "DB_PORT=3306" >> .env
-            echo "PORT=3002" >> .env  
+            echo "DB_PORT=3306" >> .env 
 
         
             sudo docker pull ksrobalino/microservicio-read-property:latest  
