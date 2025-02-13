@@ -3,7 +3,7 @@ name: Deploy Microservice to EC2
 on:
   push:
     branches:
-      - Test2  
+      - main  
 
 jobs:
   build_and_push_image:
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_READUSER_TEST }}  
+          host: ${{ secrets.EC2_HOST_READUSER }}  
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
