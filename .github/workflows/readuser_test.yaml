@@ -29,7 +29,7 @@ jobs:
           context: ./BackEnd  
           file: ./BackEnd/Users/Students/read_student/Dockerfile  
           push: true
-          tags: ksrobalino/microser-read-student:latest  
+          tags: ksrobalino/microservicio-read-student:latest
 
   deploy_to_ec2:
     name: Deploy Docker Container to EC2
@@ -63,8 +63,8 @@ jobs:
             fi
 
             # Detener y eliminar el contenedor si ya existe
-            sudo docker stop microser-read-student || true
-            sudo docker rm microser-read-student || true
+            sudo docker stop microservicio-read-student || true
+            sudo docker rm microservicio-read-student || true
 
             # Crear un archivo .env en la instancia EC2 con las variables de entorno
             echo "DB_HOST=database-users.cge22i1wn4cz.us-east-1.rds.amazonaws.com" > .env
@@ -75,7 +75,7 @@ jobs:
             echo "PORT=6002" >> .env
 
             # Descargar la imagen Docker
-            sudo docker pull ksrobalino/microser-read-student:latest  # Cambiado a microser-read-student
+            sudo docker pull ksrobalino/microservicio-read-student:latest
 
             # Ejecutar el contenedor
-            sudo docker run -d --name microser-read-student --env-file .env -p 6002:6002 ksrobalino/microser-read-student:latest
+            sudo docker run -d --name microservicio-read-student --env-file .env -p 6002:6002 ksrobalino/microservicio-read-student:latest
