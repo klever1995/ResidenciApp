@@ -1,4 +1,4 @@
-module create-service
+module read-service
 
 go 1.21
 
