@@ -27,9 +27,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./BackEnd  
-          file: ./BackEnd/Users/Students/read_student/Dockerfile  
+          file: ./BackEnd/Users/Students/create_student/Dockerfile  
           push: true
-          tags: ksrobalino/microservicio-read-student:latest
+          tags: ksrobalino/microservicio-create-student:latest
 
   deploy_to_ec2:
     name: Deploy Docker Container to EC2
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_READUSER_TEST }}  
+          host: ${{ secrets.EC2_HOST_CREATEUSER_TEST }}  
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
@@ -63,8 +63,8 @@ jobs:
             fi
 
             
-            sudo docker stop microservicio-read-student || true
-            sudo docker rm microservicio-read-student || true
+            sudo docker stop microservicio-create-student || true
+            sudo docker rm microservicio-create-student || true
 
           
             echo "DB_HOST=database-users.cge22i1wn4cz.us-east-1.rds.amazonaws.com" > .env
@@ -72,10 +72,10 @@ jobs:
             echo "DB_PASSWORD=Narusenin123" >> .env
             echo "DB_NAME=StudentService" >> .env
             echo "DB_PORT=3306" >> .env
-            echo "PORT=6002" >> .env
+            echo "PORT=6001" >> .env
 
-            
-            sudo docker pull ksrobalino/microservicio-read-student:latest
+            # Descargar la imagen Docker
+            sudo docker pull ksrobalino/microservicio-create-student:latest
 
-         
-            sudo docker run -d --name microservicio-read-student --env-file .env -p 6002:6002 ksrobalino/microservicio-read-student:latest
+            # Ejecutar el contenedor
+            sudo docker run -d --name microservicio-create-student --env-file .env -p 6001:6001 ksrobalino/microservicio-create-student:latest
