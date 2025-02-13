@@ -1,19 +1,20 @@
 package main
 
 import (
-	"create-service/config"
-	"create-service/handlers"
 	"fmt"
 	"log"
 	"net/http"
+	"read-service/config"
+	"read-service/handlers"
 )
 
 func main() {
 	config.ConnectDB()
 
-	http.HandleFunc("/cproperties", handlers.CreatePropertyHandler)
+	http.HandleFunc("/rproperties", handlers.GetAllPropertiesHandler)
+	http.HandleFunc("/rproperty", handlers.GetPropertyByIDHandler)
 
-	port := "3001"
+	port := "3002"
 	fmt.Println("🚀 Servidor ejecutándose en el puerto " + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

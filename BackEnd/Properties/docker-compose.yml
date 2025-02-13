@@ -1,64 +1,62 @@
-version: '3.8'
+version: "3.8"
+
 services:
   mysql:
-    image: mysql:8
-    container_name: mysql_db
-    restart: always
+    image: mysql:8.0
+    container_name: mysql_container
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: PropertyService
+      MYSQL_DATABASE: PropertyServices
     ports:
       - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
 
   create-service:
-    build: ./create-service
+    build: ./create_property
+    container_name: create-service
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
     ports:
       - "3001:3001"
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: PropertyService
 
   read-service:
-    build: ./read-service
+    build: ./read_property
+    container_name: read-service
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
     ports:
       - "3002:3002"
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: PropertyService
 
   update-service:
-    build: ./update-service
+    build: ./update_property
+    container_name: update-service
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
     ports:
       - "3003:3003"
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: PropertyService
 
   delete-service:
-    build: ./delete-service
-    ports:
-      - "3004:3004"
+    build: ./delete_property
+    container_name: delete-service
     depends_on:
       - mysql
     environment:
       DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: PropertyService
+    ports:
+      - "3004:3004"
 
-volumes:
-  mysql_data:
+  api-gateway:
+    build: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - create-service
+      - read-service
+      - update-service
+      - delete-service

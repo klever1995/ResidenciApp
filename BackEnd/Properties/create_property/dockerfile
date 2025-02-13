@@ -1,20 +1,21 @@
-# Usa una imagen base de Node.js
-FROM node:18
+# Usa la misma versión de Go que en go.mod
+FROM golang:1.21 AS builder
 
-# Define el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de package.json y package-lock.json correctamente
-COPY package.json package-lock.json ./
+# Copiar solo go.mod y go.sum primero para aprovechar la caché
+COPY go.mod go.sum ./
 
-# Instala las dependencias
-RUN npm install
+RUN go mod download
 
-# Copia solo la carpeta del servicio que necesitas
-COPY Properties/create_property/ ./
+# Copiar el resto de los archivos
+COPY . .
 
-# Expone el puerto
-EXPOSE 3001
+# Compilar la aplicación
+RUN go build -o main .
 
-# Comando para ejecutar la aplicación
-CMD ["node", "index.js"]
+# Imagen final
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/main .
+CMD ["./main"]
