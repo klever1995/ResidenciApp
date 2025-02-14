@@ -13,6 +13,7 @@ app.use(cors()); // This will allow requests from any source
 //Middleware for parsear JSON
 app.use(express.json());
 
+//Prueba 2025
 //Endpoint for create a property
 app.post('/cowners', async (req, res) => {
     const { username, email, password, identity_card, age, phone } = req.body;
