@@ -10,6 +10,6 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 // Start server
-app.listen(5000, () => {
-  console.log('Auth service running on port 5000');
+app.listen(5020, () => {
+  console.log('Auth service running on port 5020');
 });
