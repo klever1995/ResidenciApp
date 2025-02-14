@@ -66,10 +66,10 @@ jobs:
             sudo docker stop microservicio-update-owner || true
             sudo docker rm microservicio-update-owner || true
 
-            
-            echo "DB_HOST=database-users.cge22i1wn4cz.us-east-1.rds.amazonaws.com" > .env
+
+            echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
             echo "DB_USER=admin" >> .env
-            echo "DB_PASSWORD=Narusenin123" >> .env
+            echo "DB_PASSWORD=Ksrobalino123" >> .env
             echo "DB_NAME=OwnerService" >> .env  
             echo "DB_PORT=3306" >> .env
             echo "PORT=7003" >> .env  
