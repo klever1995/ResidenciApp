@@ -10,18 +10,60 @@ import (
 	"strconv"
 )
 
+// GetAllPropertiesHandler maneja la obtención de propiedades con filtros opcionales por owner_id o usernameOwner
 func GetAllPropertiesHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := config.DB.Query("SELECT id, title, address, owner_id, price, description, is_available, image, city, created_at, updated_at FROM Properties")
+	w.Header().Set("Content-Type", "application/json")
+
+	ownerIDStr := r.URL.Query().Get("owner_id")
+	usernameOwner := r.URL.Query().Get("username")
+
+	var (
+		rows  *sql.Rows
+		err   error
+		args  []interface{}
+		query = "SELECT id, title, address, COALESCE(owner_id, 0), price, description, is_available, image, city, usernameOwner, created_at, updated_at FROM Properties"
+	)
+
+	// Construcción dinámica de la consulta según los parámetros recibidos
+	if ownerIDStr != "" {
+		ownerID, err := strconv.Atoi(ownerIDStr)
+		if err != nil {
+			http.Error(w, "Owner ID inválido", http.StatusBadRequest)
+			return
+		}
+		query += " WHERE owner_id = ?"
+		args = append(args, ownerID)
+	} else if usernameOwner != "" {
+		query += " WHERE usernameOwner = ?"
+		args = append(args, usernameOwner)
+	}
+
+	// Ejecución de la consulta
+	rows, err = config.DB.Query(query, args...)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error al obtener propiedades: %v", err), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
 
+	// Procesamiento de los resultados
 	var properties []models.Property
 	for rows.Next() {
 		var property models.Property
-		err := rows.Scan(&property.ID, &property.Title, &property.Address, &property.OwnerID, &property.Price, &property.Description, &property.IsAvailable, &property.Image, &property.City, &property.CreatedAt, &property.UpdatedAt)
+		err := rows.Scan(
+			&property.ID,
+			&property.Title,
+			&property.Address,
+			&property.OwnerID,
+			&property.Price,
+			&property.Description,
+			&property.IsAvailable,
+			&property.Image,
+			&property.City,
+			&property.UsernameOwner,
+			&property.CreatedAt,
+			&property.UpdatedAt,
+		)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error al escanear la propiedad: %v", err), http.StatusInternalServerError)
 			return
@@ -29,31 +71,8 @@ func GetAllPropertiesHandler(w http.ResponseWriter, r *http.Request) {
 		properties = append(properties, property)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(properties)
-}
-
-func GetPropertyByIDHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
+	// Envío de la respuesta JSON
+	if err := json.NewEncoder(w).Encode(properties); err != nil {
+		http.Error(w, "Error al codificar la respuesta", http.StatusInternalServerError)
 	}
-
-	var property models.Property
-	err = config.DB.QueryRow("SELECT id, title, address, owner_id, price, description, is_available, image, city, created_at, updated_at FROM Properties WHERE id = ?", id).
-		Scan(&property.ID, &property.Title, &property.Address, &property.OwnerID, &property.Price, &property.Description, &property.IsAvailable, &property.Image, &property.City, &property.CreatedAt, &property.UpdatedAt)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Propiedad no encontrada", http.StatusNotFound)
-		} else {
-			http.Error(w, fmt.Sprintf("Error al obtener la propiedad: %v", err), http.StatusInternalServerError)
-		}
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(property)
 }

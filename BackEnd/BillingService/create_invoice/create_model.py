@@ -1,41 +1,18 @@
-from database import get_connection
+import pymysql
+from database import get_db_connection
 
-def create_invoice(invoice_data):
-    """
-    Inserta una nueva factura en la base de datos.
-    invoice_data: diccionario con las claves:
-      - student_id: ID del usuario (de StudentService)
-      - reservation_id: ID de la reservación (de ReservationServices)
-      - amount: Monto de la factura
-      - status: Estado de la factura (opcional, por defecto 'unpaid')
-    """
-    # Si no se provee el estado, usamos 'unpaid'
-    status = invoice_data.get("status", "unpaid")
+def get_student_id_by_name(student_name):
+    """Busca el ID del estudiante por su nombre."""
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = "SELECT id FROM StudentService.Students WHERE username = %s"
+    cursor.execute(query, (student_name,))
+    result = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
 
-    # La consulta SQL para insertar la factura
-    query = """
-    INSERT INTO Invoices (student_id, reservation_id, amount, status)
-    VALUES (%s, %s, %s, %s)
-    """
-    values = (
-        invoice_data["student_id"],
-        invoice_data["reservation_id"],
-        invoice_data["amount"],
-        status
-    )
-
-    conn = get_connection()
-    cursor = conn.cursor()
-    try: 
-        cursor.execute(query, values)
-        conn.commit()
-        invoice_id = cursor.lastrowid
-    except Exception as e:
-        conn.rollback()
-        raise e
-    finally:
-        cursor.close()
-        conn.close()
-
-
-    return invoice_id
+    if result:
+        return result[0]  # Retorna el ID del estudiante
+    return None  # Retorna None si no se encuentra

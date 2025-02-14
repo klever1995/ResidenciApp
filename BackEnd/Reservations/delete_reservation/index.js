@@ -28,15 +28,26 @@ app.use(cors()); // This will allow requests from any source
 // Delete a reservation by ID
 app.delete("/dreservations/:id", (req, res) => {
   const { id } = req.params;
-  db.query("DELETE FROM Reservations WHERE id = ?", [id], (err, result) => {
+
+  if (!id) {
+    return res.status(400).json({ error: "Debe proporcionar un ID válido para eliminar la reservación" });
+  }
+
+  const query = "DELETE FROM Reservations WHERE id = ?";
+  db.query(query, [id], (err, result) => {
     if (err) {
-      console.error("Error al eliminar reservación:", err);
+      console.error("❌ Error al eliminar reservación:", err);
       return res.status(500).json({ error: "Error en el servidor" });
     }
-    if (result.affectedRows === 0) return res.status(404).json({ error: "Reservación no encontrada" });
-    res.json({ message: "Reservación eliminada" });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "❌ Reservación no encontrada" });
+    }
+
+    res.json({ message: "✅ Reservación eliminada correctamente" });
   });
 });
+
 
 // Start server
 const PORT = process.env.PORT || 4004;
