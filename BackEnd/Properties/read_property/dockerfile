@@ -14,6 +14,9 @@ COPY . .
 # Compilar la aplicación
 RUN go build -o main .
 
+# Expone el puerto 3002
+EXPOSE 3002
+
 # Imagen final
 FROM alpine:latest
 WORKDIR /root/
