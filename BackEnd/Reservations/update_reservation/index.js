@@ -32,17 +32,21 @@ app.put("/upreservations/:id", (req, res) => {
   const { status } = req.body;
 
   if (!status) {
-    return res.status(400).json({ error: "Debe proporcionar al menos un campo a actualizar" });
+    return res.status(400).json({ error: "Debe proporcionar un estado válido para actualizar" });
   }
 
   const query = "UPDATE Reservations SET status = ? WHERE id = ?";
-  db.query(query, [ status, id], (err, result) => {
+  db.query(query, [status, id], (err, result) => {
     if (err) {
-      console.error("Error al actualizar reservación:", err);
+      console.error("❌ Error al actualizar reservación:", err);
       return res.status(500).json({ error: "Error en el servidor" });
     }
-    if (result.affectedRows === 0) return res.status(404).json({ error: "Reservación no encontrada" });
-    res.json({ message: "Reservación actualizada" });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "❌ Reservación no encontrada" });
+    }
+
+    res.json({ message: "✅ Reservación actualizada correctamente" });
   });
 });
 
