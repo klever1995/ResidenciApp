@@ -3,7 +3,7 @@ name: Deploy Microservice to EC2
 on:
   push:
     branches:
-      - main  
+      - main 
 
 jobs:
   build_and_push_image:
@@ -26,7 +26,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./BackEnd  
+          context: ./BackEnd/Properties/read_property  
           file: ./BackEnd/Properties/read_property/Dockerfile  
           push: true
           tags: ksrobalino/microservicio-read-property:latest  
@@ -50,7 +50,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-           
             if ! command -v docker &> /dev/null; then
               echo "Instalando Docker..."
               sudo yum update -y
@@ -62,20 +61,17 @@ jobs:
               echo "Docker ya está instalado."
             fi
 
-           
             sudo docker stop microservicio-read-property || true
             sudo docker rm microservicio-read-property || true
 
-
+            # Crear el archivo .env
             echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
             echo "DB_USER=admin" >> .env
             echo "DB_PASSWORD=Ksrobalino123" >> .env
-            echo "DB_NAME=PropertyService" >> .env  
+            echo "DB_NAME=PropertyServices" >> .env  
             echo "DB_PORT=3306" >> .env
-            echo "PORT=3002" >> .env  
+            echo "PORT=3002" >> .env
 
-      
             sudo docker pull ksrobalino/microservicio-read-property:latest  
 
-    
-            sudo docker run -d --name microservicio-read-property --env-file .env -p 3002:3002 ksrobalino/microservicio-read-property:latest 
+            sudo docker run -d --name microservicio-read-property --env-file .env -p 3002:3002 ksrobalino/microservicio-read-property:latest
