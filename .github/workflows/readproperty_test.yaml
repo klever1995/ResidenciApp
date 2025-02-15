@@ -64,12 +64,13 @@ jobs:
             sudo docker stop microservicio-read-property || true
             sudo docker rm microservicio-read-property || true
 
+            # Crear el archivo .env
             echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
             echo "DB_USER=admin" >> .env
             echo "DB_PASSWORD=Ksrobalino123" >> .env
-            echo "DB_NAME=PropertyService" >> .env  
+            echo "DB_NAME=PropertyServices" >> .env  
             echo "DB_PORT=3306" >> .env
-            echo "PORT=3002" >> .env  
+            echo "PORT=3002" >> .env
 
             sudo docker pull ksrobalino/microservicio-read-property:latest  
 
