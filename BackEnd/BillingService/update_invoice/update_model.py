@@ -1,54 +1,60 @@
 from database import get_connection
 
+def invoice_exists(invoice_id):
+    """ Verifica si una factura existe en la base de datos. """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id FROM Invoices WHERE id = %s", (invoice_id,))
+        return cursor.fetchone() is not None
+    except Exception as e:
+        print(f"❌ Error al verificar existencia de factura: {e}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
 def update_invoice(invoice_id, invoice_data):
     """
     Actualiza una factura existente en la base de datos.
-    invoice_id: ID de la factura a actualizar.
-    invoice_data: diccionario con los campos a actualizar:
-      - student_id (opcional)
-      - reservation_id (opcional)
-      - amount (opcional)
-      - status (opcional)
     """
+    if not invoice_exists(invoice_id):
+        return {"message": "❌ Factura no encontrada"}
+
     fields = []
     values = []
 
-    # Construimos dinámicamente la consulta SQL con los campos que se enviaron
-    if "student_id" in invoice_data:
-        fields.append("student_id = %s")
-        values.append(invoice_data["student_id"])
-    
-    if "reservation_id" in invoice_data:
-        fields.append("reservation_id = %s")
-        values.append(invoice_data["reservation_id"])
-    
-    if "amount" in invoice_data:
-        fields.append("amount = %s")
-        values.append(invoice_data["amount"])
-    
-    if "status" in invoice_data:
-        fields.append("status = %s")
-        values.append(invoice_data["status"])
+    # Definir los campos que se pueden actualizar
+    allowed_fields = ["student_id", "reservation_id", "amount", "status"]
 
-    # Si no hay campos para actualizar, salimos
+    for field in allowed_fields:
+        if field in invoice_data:
+            fields.append(f"{field} = %s")
+            values.append(invoice_data[field])
+
     if not fields:
-        return {"message": "No se proporcionaron datos para actualizar"}
+        return {"message": "⚠ No se proporcionaron datos para actualizar"}
 
-    # Construimos la consulta SQL de actualización
     query = f"UPDATE Invoices SET {', '.join(fields)} WHERE id = %s"
-    values.append(invoice_id)  # Agregamos el ID al final
+    values.append(invoice_id)
 
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        print(f"🔄 Ejecutando SQL: {query} con valores {values}")  # Para depuración
         cursor.execute(query, tuple(values))
         conn.commit()
+
         if cursor.rowcount == 0:
-            return {"message": "Factura no encontrada o sin cambios"}
-        return {"message": "Factura actualizada correctamente"}
+            return {"message": "⚠ No se realizaron cambios en la factura"}
+        
+        return {"message": "✅ Factura actualizada correctamente"}
+
     except Exception as e:
         conn.rollback()
-        return {"error": f"Error al actualizar la factura: {e}"}
+        print(f"❌ Error al actualizar la factura: {e}")  # Log para depuración
+        return {"error": f"Error al actualizar la factura: {str(e)}"}
+
     finally:
         cursor.close()
         conn.close()
