@@ -11,11 +11,21 @@ RUN go mod download
 # Copiar el resto de los archivos
 COPY . .
 
-# Compilar la aplicación
-RUN go build -o main .
+# Compilar la aplicación (estáticamente)
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+
+EXPOSE 3004
 
 # Imagen final
 FROM alpine:latest
 WORKDIR /root/
+
+# Copiar el binario compilado desde la etapa de construcción
 COPY --from=builder /app/main .
+
+# Dar permisos de ejecución al binario
+RUN chmod +x /root/main
+
+# Comando para ejecutar el binario
 CMD ["./main"]
