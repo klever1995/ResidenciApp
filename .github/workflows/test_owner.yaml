@@ -1,4 +1,4 @@
-name: Deploy Student Microservices to EC2
+name: Deploy Owner Microservices to EC2
 
 on:
   push:
@@ -23,37 +23,37 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Create Student Microservice
+      - name: Build and push Create Owner Microservice
         uses: docker/build-push-action@v5
         with:
           context: ./BackEnd
-          file: ./BackEnd/Users/Students/create_student/Dockerfile
+          file: ./BackEnd/Users/Owners/create_owner/Dockerfile
           push: true
-          tags: ksrobalino/microservicio-create-student:latest
+          tags: ksrobalino/microservicio-create-owner:latest
 
-      - name: Build and push Read Student Microservice
+      - name: Build and push Read Owner Microservice
         uses: docker/build-push-action@v5
         with:
           context: ./BackEnd
-          file: ./BackEnd/Users/Students/read_student/Dockerfile
+          file: ./BackEnd/Users/Owners/read_owner/Dockerfile
           push: true
-          tags: ksrobalino/microservicio-read-student:latest
+          tags: ksrobalino/microservicio-read-owner:latest
 
-      - name: Build and push Update Student Microservice
+      - name: Build and push Update Owner Microservice
         uses: docker/build-push-action@v5
         with:
           context: ./BackEnd
-          file: ./BackEnd/Users/Students/update_student/Dockerfile
+          file: ./BackEnd/Users/Owners/update_owner/Dockerfile
           push: true
-          tags: ksrobalino/microservicio-update-student:latest
+          tags: ksrobalino/microservicio-update-owner:latest
 
-      - name: Build and push Delete Student Microservice
+      - name: Build and push Delete Owner Microservice
         uses: docker/build-push-action@v5
         with:
           context: ./BackEnd
-          file: ./BackEnd/Users/Students/delete_student/Dockerfile
+          file: ./BackEnd/Users/Owners/delete_owner/Dockerfile
           push: true
-          tags: ksrobalino/microservicio-delete-student:latest
+          tags: ksrobalino/microservicio-delete-owner:latest
 
   deploy_to_ec2:
     name: Deploy Docker Containers to EC2
@@ -69,7 +69,7 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_STUDENT_TEST }}  
+          host: ${{ secrets.EC2_HOST_OWNER_TEST }} 
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
@@ -90,21 +90,21 @@ jobs:
             echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
             echo "DB_USER=admin" >> .env
             echo "DB_PASSWORD=Ksrobalino123" >> .env
-            echo "DB_NAME=StudentService" >> .env
+            echo "DB_NAME=OwnerService" >> .env
             echo "DB_PORT=3306" >> .env
 
             
-            sudo docker stop microservicio-create-student microservicio-read-student microservicio-update-student microservicio-delete-student || true
-            sudo docker rm microservicio-create-student microservicio-read-student microservicio-update-student microservicio-delete-student || true
+            sudo docker stop microservicio-create-owner microservicio-read-owner microservicio-update-owner microservicio-delete-owner || true
+            sudo docker rm microservicio-create-owner microservicio-read-owner microservicio-update-owner microservicio-delete-owner || true
 
             
-            sudo docker pull ksrobalino/microservicio-create-student:latest
-            sudo docker pull ksrobalino/microservicio-read-student:latest
-            sudo docker pull ksrobalino/microservicio-update-student:latest
-            sudo docker pull ksrobalino/microservicio-delete-student:latest
+            sudo docker pull ksrobalino/microservicio-create-owner:latest
+            sudo docker pull ksrobalino/microservicio-read-owner:latest
+            sudo docker pull ksrobalino/microservicio-update-owner:latest
+            sudo docker pull ksrobalino/microservicio-delete-owner:latest
 
             
-            sudo docker run -d --name microservicio-create-student --env-file .env -p 6001:6001 ksrobalino/microservicio-create-student:latest
-            sudo docker run -d --name microservicio-read-student --env-file .env -p 6002:6002 ksrobalino/microservicio-read-student:latest
-            sudo docker run -d --name microservicio-update-student --env-file .env -p 6003:6003 ksrobalino/microservicio-update-student:latest
-            sudo docker run -d --name microservicio-delete-student --env-file .env -p 6004:6004 ksrobalino/microservicio-delete-student:latest
+            sudo docker run -d --name microservicio-create-owner --env-file .env -p 7001:7001 ksrobalino/microservicio-create-owner:latest
+            sudo docker run -d --name microservicio-read-owner --env-file .env -p 7002:7002 ksrobalino/microservicio-read-owner:latest
+            sudo docker run -d --name microservicio-update-owner --env-file .env -p 7003:7003 ksrobalino/microservicio-update-owner:latest
+            sudo docker run -d --name microservicio-delete-owner --env-file .env -p 7004:7004 ksrobalino/microservicio-delete-owner:latest

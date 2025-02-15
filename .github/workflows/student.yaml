@@ -3,7 +3,7 @@ name: Deploy Student Microservices to EC2
 on:
   push:
     branches:
-      - Test2  
+      - main  
 
 jobs:
   build_and_push_images:
@@ -69,12 +69,12 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_STUDENT_TEST }}  
+          host: ${{ secrets.EC2_HOST_STUDENT }}  
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            
+           
             if ! command -v docker &> /dev/null; then
               echo "Instalando Docker..."
               sudo yum update -y
