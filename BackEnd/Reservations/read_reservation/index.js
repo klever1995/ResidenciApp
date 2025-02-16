@@ -1,12 +1,23 @@
-const express = require ("express");
-const mysql = require ("mysql2");
-const cors = require('cors');
-const dotenv = require ("dotenv");
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const http = require("http");
+const { Server } = require("socket.io");
 
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // Ajusta según sea necesario
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
 
-// Connection MySQL
+// Configuración de MySQL
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -16,16 +27,49 @@ const db = mysql.createConnection({
 
 db.connect(err => {
   if (err) {
-    console.error("Error al conectar a MySQL:", err);
-    return;
+    console.error("❌ Error al conectar a MySQL:", err);
+    process.exit(1);
   }
-  console.log("Conectado a MySQL exitosamente");
+  console.log("✅ Conectado a MySQL exitosamente");
 });
 
-// Configuration of CORS
-app.use(cors()); // This will allow requests from any source
+// Configuración de Swagger
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "API de Reservaciones",
+      version: "1.0.0",
+      description: "Documentación de la API de Reservaciones",
+    },
+    servers: [
+      {
+        url: "http://localhost:4002",
+      },
+    ],
+  },
+  apis: ["./index.js"],
+};
 
-// Get all reservations
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+console.log("📜 Swagger documentado en: http://localhost:4002/api-docs");
+
+// Configuración de CORS
+app.use(cors());
+app.use(express.json());
+
+/**
+ * @swagger
+ * /readreservations:
+ *   get:
+ *     summary: Obtener todas las reservaciones
+ *     responses:
+ *       200:
+ *         description: Lista de reservaciones obtenida correctamente
+ *       500:
+ *         description: Error en el servidor
+ */
 app.get("/readreservations", (req, res) => {
   const query = `
     SELECT 
@@ -48,10 +92,27 @@ app.get("/readreservations", (req, res) => {
   });
 });
 
-// 📌 Obtener una reservación por ID con nombres en lugar de IDs
+/**
+ * @swagger
+ * /readreservations/{id}:
+ *   get:
+ *     summary: Obtener una reservación por ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Reservación encontrada
+ *       404:
+ *         description: Reservación no encontrada
+ *       500:
+ *         description: Error en el servidor
+ */
 app.get("/readreservations/:id", (req, res) => {
   const { id } = req.params;
-
   const query = `
     SELECT 
         r.id, 
@@ -77,9 +138,22 @@ app.get("/readreservations/:id", (req, res) => {
   });
 });
 
+// Configuración de WebSockets
+io.on("connection", (socket) => {
+  console.log("🟢 Cliente conectado a WebSocket");
 
-// Start server
+  socket.on("reservation_updated", (data) => {
+    console.log("🔄 Actualización de reservación recibida:", data);
+    io.emit("update_reservations", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Cliente desconectado de WebSocket");
+  });
+});
+
+// Iniciar servidor
 const PORT = process.env.PORT || 4002;
-app.listen(PORT, () => {
-  console.log(`Servicio corriendo en el puerto ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
