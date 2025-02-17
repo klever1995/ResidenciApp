@@ -1,18 +1,20 @@
-const Payment = require("../models/paymentModel");
+const db = require("../config/db");
 
-const generatePayment = async (req, res) => {
-  const { student_id, amount } = req.body;
-
-  if (!student_id || !amount) {
-    return res.status(400).json({ message: "Faltan datos requeridos" });
-  }
-
-  try {
-    const payment_id = await Payment.createPayment(student_id, amount);
-    res.status(201).json({ message: "Pago generado exitosamente", payment_id });
-  } catch (error) {
-    res.status(500).json({ message: "Error al generar el pago", error: error.message });
-  }
+const Payment = {
+  async createPayment(student_id, amount, status) {
+    try {
+      const query = `
+        INSERT INTO Payments (student_id, amount, status)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+      const values = [student_id, amount, status];
+      const result = await db.query(query, values);
+      return result.rows[0]; // Devuelve el pago creado
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
-module.exports = { generatePayment };
+module.exports = Payment;
