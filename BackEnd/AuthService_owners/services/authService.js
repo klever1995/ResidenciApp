@@ -4,48 +4,28 @@ const db = require('../config/db');
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
+// Genera un token con el ID del propietario
 const generateToken = (ownerId) => {
-    return jwt.sign({ ownerId }, SECRET_KEY, { expiresIn: '1h' }); //Token expires in 1 hour
+    return jwt.sign({ ownerId }, SECRET_KEY, { expiresIn: '1h' });
 };
 
-//To verify the token
-const verifyToken = (token) => {
-    try{
-        return jwt.verify(token, SECRET_KEY);
-    }catch(err){
-        return null;
+// Crea un nuevo token y lo almacena en la BD
+const createToken = async (ownerId) => {
+    try {
+        const token = generateToken(ownerId);
+
+        // 🔹 Ahora usamos `await db.execute(...)` correctamente
+        const query = 'INSERT INTO Tokens_Owner (owner_id, token) VALUES (?, ?)';
+        await db.execute(query, [ownerId, token]);
+
+        console.log('✅ Token creado exitosamente para owner_id:', ownerId);
+
+        return { token, owner_id: ownerId }; // 🔹 Retorna también el owner_id
+
+    } catch (err) {
+        console.error("❌ Error al crear el token:", err);
+        throw new Error("Error en la autenticación");
     }
 };
 
-//To create a new token
-const createToken = (ownerId) => {
-    const token = generateToken(ownerId);
-
-    const query = 'INSERT INTO Tokens_Owner (owner_id, token) VALUES ( ?, ?)';
-    db.query(query, [ownerId, token], (err, result) => {
-        if(err) throw err;
-        console.log('Token creado', result);
-    });
-
-    return token;
-};
-
-//To check if the token is valid
-const validateToken = (token) => {
-    const decoded = verifyToken(token);
-    if(decoded){
-        const query = 'SELECT * FROM Tokens_Owner WHERE token = ?';
-        db.query(query, [ token ], (err, results) => {
-            if(err) throw err;
-            if(results.length > 0){
-                return true; //Valid token
-            } else{
-                return false; //Invalid token
-            }
-        });
-    } else{
-        return false; //Invalid token
-    }	
-};
-
-module.exports = { createToken, validateToken };
+module.exports = { createToken };

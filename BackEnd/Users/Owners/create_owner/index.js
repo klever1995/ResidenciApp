@@ -13,6 +13,7 @@ app.use(cors()); // This will allow requests from any source
 //Middleware for parsear JSON
 app.use(express.json());
 
+//Prueba 2025
 //Endpoint for create a property
 app.post('/cowners', async (req, res) => {
     const { username, email, password, identity_card, age, phone } = req.body;
@@ -28,7 +29,7 @@ app.post('/cowners', async (req, res) => {
 
         const [result] = await db.query(
             'INSERT INTO owners (username, email, password, identity_card, age, phone) VALUES (?, ?, ?, ?, ?, ?)', 
-            [username, email, password, identity_card, age, phone]
+            [username, email, hashedPassword, identity_card, age, phone]
         );
         res.status(201).json({ message: 'Usuario propietario creado con éxito', id: result.insertId});
     }catch(error){

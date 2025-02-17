@@ -28,7 +28,7 @@ app.post('/cstudents', async (req, res) => {
 
         const [result] = await db.query(
             'INSERT INTO students (username, email, password, university, career, birthdate, age, identity_card, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [username, email, password, university, career, birthdate, age, identity_card, phone]
+            [username, email, hashedPassword, university, career, birthdate, age, identity_card, phone]
         );
         res.status(201).json({ message: 'Usuario Estudiante creado con éxito', id: result.insertId});
     }catch(error){

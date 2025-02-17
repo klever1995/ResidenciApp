@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const cors = require('cors');
-const authController = require('../controllers/authController');
+const authController = require('../controllers/authController'); // ✅ Asegura que la ruta sea correcta
 
-// Configuration of CORS
-router.use(cors()); // This will allow requests from any source
+console.log("🔍 authController:", authController); // 📌 Depuración
 
-// Path to generate a token
+router.use(cors());
+
+// 🔹 Si `authController.login` no está definido, mostramos un error explícito
+if (!authController || !authController.login) {
+    throw new Error("❌ authController.login está indefinido. Revisa la importación o la exportación en authController.js.");
+}
+
+// Rutas
 router.post('/login', authController.login);
-
-// Path to verify a token
 router.post('/validate', authController.validate);
 
 module.exports = router;
