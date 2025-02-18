@@ -1,17 +1,20 @@
-const pool = require("../config/db");
-
+const db = require("../config/db");
+ 
 const Payment = {
-  createPayment: async (student_id, amount) => {
-    const query = `INSERT INTO Payments (student_id, amount) VALUES ($1, $2) RETURNING id`;
-    const values = [student_id, amount];
-
+  async createPayment(student_id, amount, status) {
     try {
-      const result = await pool.query(query, values);
-      return result.rows[0].id; // Devuelve el ID del pago creado
+      const query = `
+        INSERT INTO Payments (student_id, amount, status)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+      const values = [student_id, amount, status];
+      const result = await db.query(query, values);
+      return result.rows[0]; // Devuelve el pago creado
     } catch (error) {
       throw error;
     }
-  }
+  },
 };
-
+ 
 module.exports = Payment;
