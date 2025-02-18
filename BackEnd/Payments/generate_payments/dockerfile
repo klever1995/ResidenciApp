@@ -18,3 +18,4 @@ EXPOSE 9002
 
 # Comando para ejecutar la aplicación (usa index.js como archivo de entrada)
 CMD ["node", "index.js"]
+

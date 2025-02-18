@@ -21,10 +21,11 @@ def get_db_connection():
 
 # 🔹 Mapeo de estados válidos para MySQL
 status_mapping = {
-    "Pendiente": "unpaid",
-    "Pagado": "paid",
-    "Cancelado": "cancelled"
+    "pending": "unpaid",   
+    "confirmed": "paid",   
+    "cancelled": "cancelled"
 }
+
 
 @app.route("/invoice", methods=["POST", "OPTIONS"])
 def create_invoice():
@@ -44,7 +45,7 @@ def create_invoice():
         student_id = data.get("student_id")
         reservation_id = data.get("reservation_id")
         amount = data.get("amount")
-        status = data.get("status", "Pendiente")
+        status = data.get("status", "unpaid")
 
         # 📌 Validar que no falten datos
         if not all([student_id, reservation_id, amount]):

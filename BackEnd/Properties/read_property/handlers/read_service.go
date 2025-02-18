@@ -10,12 +10,17 @@ import (
 	"strconv"
 )
 
-// GetAllPropertiesHandler maneja la obtención de propiedades con filtros opcionales por owner_id o usernameOwner
+// GetAllPropertiesHandler maneja la obtención de propiedades con filtros opcionales por owner_id, usernameOwner, price, title y city
 func GetAllPropertiesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// Obtención de parámetros de la consulta
 	ownerIDStr := r.URL.Query().Get("owner_id")
 	usernameOwner := r.URL.Query().Get("username")
+	title := r.URL.Query().Get("title")
+	minPriceStr := r.URL.Query().Get("min_price")
+	maxPriceStr := r.URL.Query().Get("max_price")
+	city := r.URL.Query().Get("city")
 
 	var (
 		rows  *sql.Rows
@@ -34,8 +39,61 @@ func GetAllPropertiesHandler(w http.ResponseWriter, r *http.Request) {
 		query += " WHERE owner_id = ?"
 		args = append(args, ownerID)
 	} else if usernameOwner != "" {
-		query += " WHERE usernameOwner = ?"
+		if queryContainsWhere(query) {
+			query += " AND usernameOwner = ?"
+		} else {
+			query += " WHERE usernameOwner = ?"
+		}
 		args = append(args, usernameOwner)
+	}
+
+	// Filtrar por título
+	if title != "" {
+		if queryContainsWhere(query) {
+			query += " AND title LIKE ?"
+		} else {
+			query += " WHERE title LIKE ?"
+		}
+		args = append(args, "%"+title+"%")
+	}
+
+	// Filtrar por ciudad
+	if city != "" {
+		if queryContainsWhere(query) {
+			query += " AND city LIKE ?"
+		} else {
+			query += " WHERE city LIKE ?"
+		}
+		args = append(args, "%"+city+"%")
+	}
+
+	// Filtrar por precios
+	if minPriceStr != "" {
+		minPrice, err := strconv.Atoi(minPriceStr)
+		if err != nil {
+			http.Error(w, "El valor de min_price debe ser un número", http.StatusBadRequest)
+			return
+		}
+		if queryContainsWhere(query) {
+			query += " AND price >= ?"
+		} else {
+			query += " WHERE price >= ?"
+		}
+		args = append(args, minPrice)
+	}
+
+	if maxPriceStr != "" {
+		maxPrice, err := strconv.Atoi(maxPriceStr)
+		if err != nil {
+			http.Error(w, "El valor de max_price debe ser un número", http.StatusBadRequest)
+			return
+		}
+		if queryContainsWhere(query) {
+			query += " AND price <= ?"
+		} else {
+			query += " WHERE price <= ?"
+		}
+		args = append(args, maxPrice)
 	}
 
 	// Ejecución de la consulta
@@ -75,4 +133,9 @@ func GetAllPropertiesHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(properties); err != nil {
 		http.Error(w, "Error al codificar la respuesta", http.StatusInternalServerError)
 	}
+}
+
+// queryContainsWhere verifica si la consulta ya contiene una cláusula WHERE.
+func queryContainsWhere(query string) bool {
+	return len(query) > 0 && query[len(query)-6:] == " WHERE"
 }
