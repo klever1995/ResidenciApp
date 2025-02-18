@@ -1,18 +1,20 @@
-# Use a Node.js base image
+# Usa una imagen base de Node.js
 FROM node:18
 
-# Set the working directory in the container
+# Define el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copy the application files
+# Copia los archivos de package.json y package-lock.json correctamente
 COPY package.json package-lock.json ./
+
+# Instala las dependencias
 RUN npm install
 
-# Copy the application files
-COPY . .
+# Copia solo la carpeta del servicio que necesitas
+COPY Users/Owners/delete_owner/ ./
 
-# Expose the port on which the microservice runs
+# Expone el puerto
 EXPOSE 7004
 
-# Command to start the application
+# Comando para ejecutar la aplicación
 CMD ["node", "index.js"]
