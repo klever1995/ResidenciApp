@@ -1,31 +1,29 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const db = require('../config/db');
+const jwt = require('jsonwebtoken'); // Importa jsonwebtoken
+require('dotenv').config(); // Asegúrate de que dotenv esté cargado
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY;
-
-// Genera un token con el ID del propietario
-const generateToken = (ownerId) => {
-    return jwt.sign({ ownerId }, SECRET_KEY, { expiresIn: '1h' });
-};
-
-// Crea un nuevo token y lo almacena en la BD
-const createToken = async (ownerId) => {
+// Función para crear el token
+const createToken = async (studentId) => {
     try {
-        const token = generateToken(ownerId);
-
-        // 🔹 Ahora usamos `await db.execute(...)` correctamente
-        const query = 'INSERT INTO Tokens_Students (student_id, token) VALUES (?, ?)';
-        await db.execute(query, [ownerId, token]);
-
-        console.log('✅ Token creado exitosamente para student_id:', ownerId);
-
-        return { token, owner_id: ownerId }; // 🔹 Retorna también el owner_id
-
-    } catch (err) {
-        console.error("❌ Error al crear el token:", err);
-        throw new Error("Error en la autenticación");
+        const token = jwt.sign(
+            { student_id: studentId }, // El payload
+            process.env.JWT_SECRET, // La clave secreta para firmar el token
+            { expiresIn: '1h' } // Opcional, la expiración del token
+        );
+        return { token, student_id: studentId };
+    } catch (error) {
+        console.error("❌ Error al generar el token:", error);
+        throw new Error("Error al generar el token");
     }
 };
 
-module.exports = { createToken };
+// Función para verificar el token
+const verifyToken = async (token) => {
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        console.error("❌ Error al verificar el token:", error);
+        throw new Error("Token inválido");
+    }
+};
+
+module.exports = { createToken, verifyToken };

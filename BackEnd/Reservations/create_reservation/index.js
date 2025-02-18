@@ -8,6 +8,7 @@ const amqp = require("amqplib");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const redis = require("redis"); // Importar Redis
+const axios = require("axios"); // Importar Axios para llamadas HTTP
 
 dotenv.config();
 const app = express();
@@ -23,7 +24,10 @@ redisClient.on("error", (err) => console.error("Redis error:", err));
 redisClient.connect();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "*",
+}));
+
 
 // Nueva ruta para WebSockets
 app.get("/ws", (req, res) => {
@@ -38,6 +42,7 @@ io.on("connection", (socket) => {
     });
 });
 
+// Configuración de Swagger
 const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
@@ -98,33 +103,25 @@ app.post("/creservations", async (req, res) => {
     }
 
     try {
-        // Log para verificar los datos que estamos buscando
         console.log("Buscando estudiante con nombre:", student_name);
-
         const studentQuery = `SELECT id FROM StudentService.Students WHERE LOWER(username) = LOWER(?) LIMIT 1;`;
         const [studentRows] = await db.promise().query(studentQuery, [student_name]);
-
-        console.log("Resultado de búsqueda de estudiante:", studentRows);
 
         if (studentRows.length === 0) {
             return res.status(404).send("❌ Estudiante no encontrado");
         }
         const student_id = studentRows[0].id;
 
-        // Log para verificar los datos de la propiedad
         console.log("Buscando propiedad con propietario:", owner_name);
-
-        const propertyQuery = `SELECT id FROM PropertyServices.Properties WHERE usernameOwner = ? LIMIT 1`;
+        const propertyQuery = `SELECT id, price FROM PropertyServices.Properties WHERE usernameOwner = ? LIMIT 1`;
         const [propertyRows] = await db.promise().query(propertyQuery, [owner_name]);
-
-        console.log("Resultado de búsqueda de propiedad:", propertyRows);
 
         if (propertyRows.length === 0) {
             return res.status(404).send("❌ Propiedad no encontrada");
         }
         const property_id = propertyRows[0].id;
+        const amount = propertyRows[0].price;
 
-        // Insertar en la tabla de reservas
         const insertQuery = `INSERT INTO Reservations (student_id, property_id, reservation_date, status) VALUES (?, ?, ?, ?)`;
         const [result] = await db.promise().query(insertQuery, [student_id, property_id, reservation_date, status || "pending"]);
 
@@ -141,7 +138,27 @@ app.post("/creservations", async (req, res) => {
 
         notifyClients("new_reservation", reservationData);
 
-        res.status(201).json({ message: "✅ Reservación creada", data: reservationData });
+        const statusMapping = {
+            "pending": "unpaid",   
+            "confirmed": "paid",   
+            "cancelled": "cancelled"
+        };
+        
+        const invoiceStatus = statusMapping[status] || "unpaid";
+
+        // Llamada a BillingService para crear la factura
+        const billingResponse = await axios.post("http://127.0.0.1:5001/invoice", {
+            student_id: reservationData.student_id,
+            reservation_id: reservationData.id,
+            amount: amount,
+            status: "pending",
+        });
+        console.log("📄 Factura generada:", billingResponse.data);
+
+        res.status(201).json({
+            message: "✅ Reservación creada y factura generada",
+            data: reservationData,
+        });
     } catch (err) {
         console.error("❌ Error creando la reservación:", err);
         res.status(500).send("Error en el servidor");

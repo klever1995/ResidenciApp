@@ -1,5 +1,5 @@
 const db = require("../config/db");
-
+ 
 const Payment = {
   async createPayment(student_id, amount, status) {
     try {
@@ -16,5 +16,5 @@ const Payment = {
     }
   },
 };
-
+ 
 module.exports = Payment;

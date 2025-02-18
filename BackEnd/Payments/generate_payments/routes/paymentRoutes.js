@@ -1,8 +1,7 @@
-// paymentRoutes.js
 const express = require("express");
 const router = express.Router();
 const { generatePayment } = require("../controllers/paymentController");
-
+ 
 /**
  * @swagger
  * /payments/generate:
@@ -28,5 +27,5 @@ const { generatePayment } = require("../controllers/paymentController");
  *         description: Error en la solicitud.
  */
 router.post("/generate", generatePayment);
-
+ 
 module.exports = router;

@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config();  // Cargar las variables de entorno desde el archivo .env
 const express = require('express');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
@@ -6,10 +6,13 @@ const authRoutes = require('./routes/authRoutes');
 // Middleware para parsear JSON
 app.use(express.json());
 
-// Routes
+// Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
-// Start server
-app.listen(5020, () => {
-  console.log('Auth service running on port 5020');
+// Obtener el puerto desde el .env, con un valor por defecto
+const PORT = process.env.PORT || 5020;
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+  console.log(`Auth service running on port ${PORT}`);
 });
