@@ -1,10 +1,24 @@
-const express = require ("express");
-const mysql = require ("mysql2");
-const cors = require('cors');
-const dotenv = require ("dotenv");
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const http = require("http");
+const socketIo = require("socket.io");
+
 
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
+
+app.use(cors());
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }
+});
 
 // Connection MySQL
 const db = mysql.createConnection({
@@ -22,8 +36,43 @@ db.connect(err => {
   console.log("Conectado a MySQL exitosamente");
 });
 
+const swaggerOptions = {
+  definition: {
+      openapi: "3.0.0",
+      info: {
+          title: "API de Reservaciones",
+          version: "1.0.0",
+          description: "Documentación de la API de Reservaciones",
+      },
+      servers: [{ url: "http://localhost:4002" }],
+  },
+  apis: ["./index.js"],
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+console.log("📜 Swagger documentado en: http://localhost:4002/api-docs");
+
 // Configuration of CORS
-app.use(cors()); // This will allow requests from any source
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE"]
+}));
+
+// WebSocket Connection
+io.on("connection", (socket) => {
+  console.log("🟢 Cliente conectado a WebSockets");
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Cliente desconectado");
+  });
+});
+
+// Emitir cambios en reservas
+const emitReservationUpdate = () => {
+  io.emit("reservationUpdated");
+};
 
 // Get all reservations
 app.get("/readreservations", (req, res) => {
@@ -48,7 +97,7 @@ app.get("/readreservations", (req, res) => {
   });
 });
 
-// 📌 Obtener una reservación por ID con nombres en lugar de IDs
+// Obtener una reservación por ID
 app.get("/readreservations/:id", (req, res) => {
   const { id } = req.params;
 
@@ -77,9 +126,8 @@ app.get("/readreservations/:id", (req, res) => {
   });
 });
 
-
 // Start server
 const PORT = process.env.PORT || 4002;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Servicio corriendo en el puerto ${PORT}`);
 });

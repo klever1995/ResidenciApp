@@ -1,11 +1,12 @@
-const authService = require('../services/authService');
-const db = require('../config/db');
+const db = require('../config/db'); // Asegúrate de que la ruta al archivo db.js es correcta
 const bcrypt = require('bcrypt');
+const authService = require('../services/authService');
 
 const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         console.log(`🔍 Intentando login para: ${email}`);
+
         const [rows] = await db.execute("SELECT * FROM StudentService.Students WHERE email = ?", [email]);
 
         if (rows.length === 0) {
@@ -38,7 +39,6 @@ const login = async (req, res) => {
     }
 };
 
-// ✅ Agrega la función `validate`
 const validate = async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Extrae el token del header
 
@@ -55,5 +55,4 @@ const validate = async (req, res) => {
     }
 };
 
-// ✅ Exporta `login` y `validate`
 module.exports = { login, validate };

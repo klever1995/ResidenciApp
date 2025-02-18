@@ -21,10 +21,8 @@ func enableCORS(w http.ResponseWriter) {
 }
 
 func UpdatePropertyHandler(w http.ResponseWriter, r *http.Request) {
-	// Habilitar CORS
 	enableCORS(w)
 
-	// Manejar preflight (OPTIONS)
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
 		return
@@ -44,15 +42,18 @@ func UpdatePropertyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar si la propiedad existe antes de actualizar
-	var count int
-	err = config.DB.QueryRow("SELECT COUNT(*) FROM Properties WHERE id=?", id).Scan(&count)
+	// Verificar si la propiedad existe y su estado actual
+	var currentStatus string
+	err = config.DB.QueryRow("SELECT is_available FROM Properties WHERE id=?", id).Scan(&currentStatus)
 	if err != nil {
 		http.Error(w, "Error al verificar la existencia de la propiedad", http.StatusInternalServerError)
 		return
 	}
-	if count == 0 {
-		http.Error(w, "La propiedad no existe", http.StatusNotFound)
+
+	// Validar cambios en disponibilidad
+	if currentStatus == "no disponible" && property.IsAvailable == "disponible" {
+		// Aquí podrías verificar si la reservación ha sido cancelada antes de permitir el cambio
+		http.Error(w, "No se puede volver a marcar como disponible sin cancelar la reserva", http.StatusBadRequest)
 		return
 	}
 
@@ -64,11 +65,13 @@ func UpdatePropertyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Enviar mensaje a RabbitMQ
-	err = SendMessageToQueue(property)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Propiedad actualizada, pero error al enviar mensaje a RabbitMQ: %v", err), http.StatusInternalServerError)
-		return
+	// Enviar mensaje a RabbitMQ solo si la disponibilidad cambió
+	if currentStatus != property.IsAvailable {
+		err = SendMessageToQueue(property)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Propiedad actualizada, pero error al enviar mensaje a RabbitMQ: %v", err), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
