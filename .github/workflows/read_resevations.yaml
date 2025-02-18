@@ -26,8 +26,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./Backend/Reservations/read_reservation  
-          file: ./Backend/Reservations/read_reservation/Dockerfile  
+          context: ./BackEnd/Reservations/read_reservation  # Cambiado a "BackEnd"
+          file: ./BackEnd/Reservations/read_reservation/Dockerfile  # Cambiado a "BackEnd"
           push: true
           tags: ksrobalino/microservicio-read-reservation:latest  
 
