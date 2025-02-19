@@ -28,7 +28,7 @@ app.post('/cowners', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const [result] = await db.query(
-            'INSERT INTO owners (username, email, password, identity_card, age, phone) VALUES (?, ?, ?, ?, ?, ?)', 
+            'INSERT INTO Owners (username, email, password, identity_card, age, phone) VALUES (?, ?, ?, ?, ?, ?)', 
             [username, email, hashedPassword, identity_card, age, phone]
         );
         res.status(201).json({ message: 'Usuario propietario creado con éxito', id: result.insertId});
