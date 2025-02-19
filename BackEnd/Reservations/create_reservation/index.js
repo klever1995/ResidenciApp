@@ -4,7 +4,6 @@ const socketIo = require("socket.io"); // Importar socket.io
 const mysql = require("mysql2");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const amqp = require("amqplib");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const redis = require("redis"); // Importar Redis
@@ -27,7 +26,6 @@ app.use(express.json());
 app.use(cors({
     origin: "*",
 }));
-
 
 // Nueva ruta para WebSockets
 app.get("/ws", (req, res) => {
@@ -73,23 +71,6 @@ db.connect((err) => {
         console.log("✅ Conectado a MySQL");
     }
 });
-
-async function sendToQueue(reservationData) {
-    try {
-        const connection = await amqp.connect("amqp://guest:guest@localhost:5672");
-        const channel = await connection.createChannel();
-        const queue = "reservationQueue";  // ❗ Verifica que el nombre sea el mismo
-
-        await channel.assertQueue(queue, { durable: true });
-        channel.sendToQueue(queue, Buffer.from(JSON.stringify(reservationData)));
-
-        console.log(`[✔] Reservación enviada a RabbitMQ: ${JSON.stringify(reservationData)}`);
-
-        setTimeout(() => connection.close(), 500);
-    } catch (error) {
-        console.error("❌ Error enviando mensaje a RabbitMQ:", error);
-    }
-}
 
 function notifyClients(event, data) {
     io.emit(event, data);
