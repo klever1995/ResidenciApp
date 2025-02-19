@@ -1,27 +1,58 @@
+const db = require('../config/db'); // Asegúrate de que la ruta al archivo db.js es correcta
+const bcrypt = require('bcrypt');
 const authService = require('../services/authService');
 
-const login = (req, res) => {
-  const { email, password } = req.body;
-  
-  // Verify the username and password (this must be done by consulting the database)
-  // Example
-  const studentId = 2; // Supongamos que obtienes el ID del usuario estudiante
-  
-  // If the credentials are correct, we generate a token
-  const token = authService.createToken(studentId);
-  
-  res.json({ token });
+const login = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        console.log(`🔍 Intentando login para: ${email}`);
+
+        const [rows] = await db.execute("SELECT * FROM StudentService.Students WHERE email = ?", [email]);
+
+        if (rows.length === 0) {
+            console.warn("❌ Usuario no encontrado");
+            return res.status(401).json({ error: "❌ Usuario owner no encontrado" });
+        }
+
+        const student = rows[0];
+
+        if (!student.password) {
+            console.error("❌ Error: El campo 'password' es NULL en la base de datos.");
+            return res.status(500).json({ error: "❌ Error interno del servidor" });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, student.password);
+        if (!passwordMatch) {
+            console.warn("❌ Contraseña incorrecta");
+            return res.status(401).json({ error: "❌ Contraseña incorrecta" });
+        }
+
+        const { token, student_id } = await authService.createToken(student.id);
+
+        console.log(`✅ Login exitoso - Student ID: ${student.id}`);
+
+        res.json({ token, student_id });
+
+    } catch (error) {
+        console.error("❌ Error en la autenticación:", error);
+        res.status(500).json({ error: "❌ Error interno del servidor" });
+    }
 };
 
-const validate = (req, res) => {
-  const { token } = req.body;
-  const isValid = authService.validateToken(token);
-  
-  if (isValid) {
-    res.json({ message: 'Token is valid' });
-  } else {
-    res.status(401).json({ message: 'Token is invalid or expired' });
-  }
+const validate = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // Extrae el token del header
+
+    if (!token) {
+        return res.status(401).json({ error: "❌ Token no proporcionado" });
+    }
+
+    try {
+        const decoded = await authService.verifyToken(token); // Verifica el token
+        res.json({ valid: true, student_id: decoded.student_id });
+    } catch (error) {
+        console.error("❌ Token inválido:", error);
+        res.status(401).json({ error: "❌ Token inválido" });
+    }
 };
 
 module.exports = { login, validate };

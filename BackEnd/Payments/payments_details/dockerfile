@@ -1,0 +1,20 @@
+# Usa una imagen base de Node.js
+FROM node:18
+
+# Define el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia los archivos de package.json y package-lock.json
+COPY package.json package-lock.json ./
+
+# Instala las dependencias (usa npm ci para entornos de producción)
+RUN npm ci
+
+# Copia el resto de los archivos del microservicio
+COPY . .
+
+# Expone el puerto (ajusta el puerto según tu microservicio)
+EXPOSE 9003
+
+# Comando para ejecutar la aplicación (usa index.js como archivo de entrada)
+CMD ["node", "index.js"]

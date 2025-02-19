@@ -1,51 +1,29 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const db = require('../config/db');
+const jwt = require('jsonwebtoken'); // Importa jsonwebtoken
+require('dotenv').config(); // Asegúrate de que dotenv esté cargado
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY;
-
-const generateToken = (studentId) => {
-    return jwt.sign({ studentId }, SECRET_KEY, { expiresIn: '1h' }); //Token expires in 1 hour
-};
-
-//To verify the token
-const verifyToken = (token) => {
-    try{
-        return jwt.verify(token, SECRET_KEY);
-    }catch(err){
-        return null;
+// Función para crear el token
+const createToken = async (studentId) => {
+    try {
+        const token = jwt.sign(
+            { student_id: studentId }, // El payload
+            process.env.JWT_SECRET, // La clave secreta para firmar el token
+            { expiresIn: '1h' } // Opcional, la expiración del token
+        );
+        return { token, student_id: studentId };
+    } catch (error) {
+        console.error("❌ Error al generar el token:", error);
+        throw new Error("Error al generar el token");
     }
 };
 
-//To create a new token
-const createToken = (studentId) => {
-    const token = generateToken(studentId);
-
-    const query = 'INSERT INTO Tokens_Students (student_id, token) VALUES ( ?, ?)';
-    db.query(query, [studentId, token], (err, result) => {
-        if(err) throw err;
-        console.log('Token creado', result);
-    });
-
-    return token;
+// Función para verificar el token
+const verifyToken = async (token) => {
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        console.error("❌ Error al verificar el token:", error);
+        throw new Error("Token inválido");
+    }
 };
 
-//To check if the token is valid
-const validateToken = (token) => {
-    const decoded = verifyToken(token);
-    if(decoded){
-        const query = 'SELECT * FROM Tokens_Students WHERE token = ?';
-        db.query(query, [ token ], (err, results) => {
-            if(err) throw err;
-            if(results.length > 0){
-                return true; //Valid token
-            } else{
-                return false; //Invalid token
-            }
-        });
-    } else{
-        return false; //Invalid token
-    }	
-};
-
-module.exports = { createToken, validateToken };
+module.exports = { createToken, verifyToken };

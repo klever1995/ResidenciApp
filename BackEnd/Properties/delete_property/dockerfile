@@ -1,18 +1,31 @@
-# Use a Node.js base image
-FROM node:18
+# Usa la misma versión de Go que en go.mod
+FROM golang:1.21 AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the application files
-COPY package.json package-lock.json ./
-RUN npm install
+# Copiar solo go.mod y go.sum primero para aprovechar la caché
+COPY go.mod go.sum ./
 
-# Copy the application files
+RUN go mod download
+
+# Copiar el resto de los archivos
 COPY . .
 
-# Expose the port on which the microservice runs
-EXPOSE 3004  
+# Compilar la aplicación (estáticamente)
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-# Command to start the application
-CMD ["node", "index.js"]
+
+EXPOSE 3004
+
+# Imagen final
+FROM alpine:latest
+WORKDIR /root/
+
+# Copiar el binario compilado desde la etapa de construcción
+COPY --from=builder /app/main .
+
+# Dar permisos de ejecución al binario
+RUN chmod +x /root/main
+
+# Comando para ejecutar el binario
+CMD ["./main"]
