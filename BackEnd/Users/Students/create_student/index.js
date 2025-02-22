@@ -27,7 +27,7 @@ app.post('/cstudents', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const [result] = await db.query(
-            'INSERT INTO students (username, email, password, university, career, birthdate, age, identity_card, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            'INSERT INTO Students (username, email, password, university, career, birthdate, age, identity_card, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
             [username, email, hashedPassword, university, career, birthdate, age, identity_card, phone]
         );
         res.status(201).json({ message: 'Usuario Estudiante creado con éxito', id: result.insertId});
