@@ -14,8 +14,8 @@ RUN npm ci
 COPY . .
 
 # Expone el puerto en el que la aplicación escucha (8000 en tu caso)
-EXPOSE 8000
+EXPOSE 9002
 
 # Comando para ejecutar la aplicación
-CMD ["node", "app.js"]
+CMD ["node", "index.js"]
 
