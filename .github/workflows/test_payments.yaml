@@ -3,7 +3,7 @@ name: Deploy Payments Microservices to EC2
 on:
   push:
     branches:
-      - Test2  # Cambia esto por la rama que deseas usar para el despliegue
+      - Test2  
 
 jobs:
   build_and_push_images:
@@ -26,18 +26,18 @@ jobs:
       - name: Build and push Generate Payments Microservice
         uses: docker/build-push-action@v5
         with:
-          context: ./BackEnd/Payments/generate_payments  # Ruta al microservicio
-          file: ./BackEnd/Payments/generate_payments/Dockerfile  # Ruta al Dockerfile
+          context: ./BackEnd/Payments/generate_payments  
+          file: ./BackEnd/Payments/generate_payments/Dockerfile  
           push: true
-          tags: ksrobalino/generate_payments:latest  # Nombre de la imagen en Docker Hub
+          tags: ksrobalino/generate_payments:latest  
 
       - name: Build and push Payments Details Microservice
         uses: docker/build-push-action@v5
         with:
-          context: ./BackEnd/Payments/payments_details  # Ruta al microservicio
-          file: ./BackEnd/Payments/payments_details/Dockerfile  # Ruta al Dockerfile
+          context: ./BackEnd/Payments/payments_details 
+          file: ./BackEnd/Payments/payments_details/Dockerfile 
           push: true
-          tags: ksrobalino/payments_details:latest  # Nombre de la imagen en Docker Hub
+          tags: ksrobalino/payments_details:latest  
 
   deploy_to_ec2:
     name: Deploy Docker Containers to EC2
@@ -53,8 +53,8 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_PAYMENTS }}  # Host de la instancia EC2
-          username: ec2-user  # Usuario de la instancia EC2
+          host: ${{ secrets.EC2_HOST_PAYMENTS_TEST }}  
+          username: ec2-user  
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
