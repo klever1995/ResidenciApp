@@ -13,9 +13,9 @@ RUN npm ci
 # Copia el resto de los archivos del microservicio
 COPY . .
 
-# Expone el puerto (ajusta el puerto según tu microservicio)
-EXPOSE 9002
+# Expone el puerto en el que la aplicación escucha (8000 en tu caso)
+EXPOSE 8000
 
-# Comando para ejecutar la aplicación (usa index.js como archivo de entrada)
-CMD ["node", "index.js"]
+# Comando para ejecutar la aplicación
+CMD ["node", "app.js"]
 
