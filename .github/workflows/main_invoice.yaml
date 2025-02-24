@@ -3,7 +3,7 @@ name: Deploy Billing Microservices to EC2
 on:
   push:
     branches:
-      - Test2
+      - main
 
 jobs:
   build_and_push_images:
@@ -69,7 +69,7 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_BILLING_TEST }}  
+          host: ${{ secrets.EC2_HOST_BILLING_MAIN }} 
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
@@ -85,23 +85,23 @@ jobs:
               echo "Docker ya está instalado."
             fi
 
-          
+           
             echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
             echo "DB_USER=admin" >> .env
             echo "DB_PASSWORD=Ksrobalino123" >> .env
             echo "DB_NAME=BillingServices" >> .env
 
-           
+            
             sudo docker stop microservicio-create-invoice microservicio-read-invoice microservicio-update-invoice microservicio-delete-invoice || true
             sudo docker rm microservicio-create-invoice microservicio-read-invoice microservicio-update-invoice microservicio-delete-invoice || true
 
-         
+           
             sudo docker pull ksrobalino/microservicio-create-invoice:latest
             sudo docker pull ksrobalino/microservicio-read-invoice:latest
             sudo docker pull ksrobalino/microservicio-update-invoice:latest
             sudo docker pull ksrobalino/microservicio-delete-invoice:latest
 
-            
+           
             sudo docker run -d --name microservicio-create-invoice --env-file .env -p 5001:5001 ksrobalino/microservicio-create-invoice:latest
             sudo docker run -d --name microservicio-read-invoice --env-file .env -p 5002:5002 ksrobalino/microservicio-read-invoice:latest
             sudo docker run -d --name microservicio-update-invoice --env-file .env -p 5003:5003 ksrobalino/microservicio-update-invoice:latest

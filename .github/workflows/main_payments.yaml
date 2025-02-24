@@ -3,7 +3,7 @@ name: Deploy Payments Microservices to EC2
 on:
   push:
     branches:
-      - Test2  
+      - main  
 
 jobs:
   build_and_push_images:
@@ -53,7 +53,7 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_PAYMENTS_TEST }}  
+          host: ${{ secrets.EC2_HOST_PAYMENTS_MAIN }}  
           username: ec2-user  
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
@@ -80,7 +80,7 @@ jobs:
             sudo docker stop generate_payments payments_details || true
             sudo docker rm generate_payments payments_details || true
 
-           
+            
             sudo docker pull ksrobalino/generate_payments:latest
             sudo docker pull ksrobalino/payments_details:latest
 
