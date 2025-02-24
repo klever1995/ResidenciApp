@@ -7,18 +7,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux" // Importa mux para el enrutador
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-)
-
-const (
-	dbUser     = "root"
-	dbPassword = "admin123"
-	dbName     = "PropertyService"
-	dbHost     = "localhost"
 )
 
 // Estructura para la actualización de propiedades
@@ -29,7 +23,6 @@ type PropertyUpdate struct {
 
 // Función para notificar al servicio de reservaciones
 func notifyReservationService(propertyID int) {
-	// URL del servicio de reservaciones (ajusta la URL según corresponda)
 	url := fmt.Sprintf("http://localhost:4003/reservation/%d", propertyID)
 	data := map[string]int{"property_id": propertyID}
 	jsonData, _ := json.Marshal(data)
@@ -49,7 +42,6 @@ func notifyReservationService(propertyID int) {
 
 // Función para notificar al servicio de facturación
 func notifyBillingService(propertyID int) {
-	// URL del servicio de facturación (ajusta la URL según corresponda)
 	url := "http://127.0.0.1:5003/invoices"
 	data := map[string]int{"property_id": propertyID}
 	jsonData, _ := json.Marshal(data)
@@ -68,13 +60,33 @@ func notifyBillingService(propertyID int) {
 }
 
 func main() {
-	// Conectar a la base de datos
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
+	// Cargar las variables de entorno desde el archivo .env
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No se pudo cargar el archivo .env, se usarán variables de entorno del sistema.")
+	}
+
+	// Obtener las credenciales de la base de datos desde las variables de entorno
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+
+	// Construir la cadena de conexión
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con la base de datos: %v", err)
 	}
 	defer db.Close()
+
+	// Verificar la conexión a la base de datos
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("❌ No se pudo conectar a la base de datos: %v", err)
+	}
+	log.Println("✅ Conexión a la base de datos establecida correctamente.")
 
 	// Crear un enrutador usando mux
 	r := mux.NewRouter()
