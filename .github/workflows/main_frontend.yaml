@@ -1,13 +1,13 @@
-name: Deploy AuthService Student to EC2
+name: Deploy Frontend to EC2
 
 on:
   push:
     branches:
-      - Test2  
+      - main  
 
 jobs:
-  build_and_push_image:
-    name: Build and Push Docker Image
+  build_and_push_frontend:
+    name: Build and Push Frontend Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -23,18 +23,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./BackEnd/AuthService_student  
-          file: ./BackEnd/AuthService_student/Dockerfile  
+          context: ./FrontEnd/residenciapp  
+          file: ./FrontEnd/residenciapp/Dockerfile  
           push: true
-          tags: ksrobalino/microservicio-auth-students:latest  
+          tags: ksrobalino/frontend-react:latest
 
-  deploy_to_ec2:
-    name: Deploy Docker Container to EC2
+  deploy_frontend_to_ec2:
+    name: Deploy Frontend to EC2
     runs-on: ubuntu-latest
-    needs: build_and_push_image
+    needs: build_and_push_frontend 
 
     steps:
       - name: Set up SSH key
@@ -45,11 +45,12 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST_AUTHSERVICE_STUDENT }}  
+          host: ${{ secrets.EC2_HOST_FRONTEND_MAIN }}  
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+          
             if ! command -v docker &> /dev/null; then
               echo "Instalando Docker..."
               sudo yum update -y
@@ -59,20 +60,14 @@ jobs:
               echo "Docker instalado correctamente."
             else
               echo "Docker ya está instalado."
-            fi
+            fi  
 
-            sudo docker stop microservicio-auth-students || true
-            sudo docker rm microservicio-auth-students || true
+           
+            sudo docker stop frontend-react || true
+            sudo docker rm frontend-react || true
 
-            # Crear el archivo .env
-            echo "DB_HOST=basemysql.c0koula3al44.us-east-1.rds.amazonaws.com" > .env
-            echo "DB_USER=admin" >> .env
-            echo "DB_PASSWORD=Ksrobalino123" >> .env
-            echo "DB_NAME=AuthServices" >> .env
-            echo "DB_PORT=3306" >> .env
-            echo "JWT_SECRET=JWT123" >> .env
-            echo "PORT=5020" >> .env
+            
+            sudo docker pull ksrobalino/frontend-react:latest
 
-            sudo docker pull ksrobalino/microservicio-auth-students:latest
-
-            sudo docker run -d --name microservicio-auth-students --env-file .env -p 5020:5020 ksrobalino/microservicio-auth-students:latest
+           
+            sudo docker run -d --name frontend-react -p 80:80 ksrobalino/frontend-react:latest
