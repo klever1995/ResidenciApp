@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 6001;
 
 // Configuration of CORS
 // Configuration of CORS
+// Configuration of CORS
 app.use(cors()); // This will allow requests from any source
 
 //Middleware for parsear JSON
