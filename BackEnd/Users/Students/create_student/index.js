@@ -8,6 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 6001;
 
 // Configuration of CORS
+// Configuration of CORS
+// Configuration of CORS
 app.use(cors()); // This will allow requests from any source
 
 //Middleware for parsear JSON
@@ -27,8 +29,8 @@ app.post('/cstudents', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const [result] = await db.query(
-            'INSERT INTO students (username, email, password, university, career, birthdate, age, identity_card, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [username, email, password, university, career, birthdate, age, identity_card, phone]
+            'INSERT INTO Students (username, email, password, university, career, birthdate, age, identity_card, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [username, email, hashedPassword, university, career, birthdate, age, identity_card, phone]
         );
         res.status(201).json({ message: 'Usuario Estudiante creado con éxito', id: result.insertId});
     }catch(error){

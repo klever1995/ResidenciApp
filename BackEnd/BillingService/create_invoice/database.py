@@ -23,7 +23,7 @@ connection_pool = pooling.MySQLConnectionPool(
     **dbconfig
 )
 
-def get_connection():
+def get_db_connection():
     """Obtiene una conexión del pool. """
     return connection_pool.get_connection()
 
